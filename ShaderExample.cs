@@ -1,6 +1,8 @@
 ﻿// The following is code from an OpenTK tutorial.
 
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics;
@@ -12,14 +14,18 @@ namespace OpenGL3
     public class HelloGL3: GameWindow
     {
         string vertexShaderSource = @"
+            
             #version 140
  
             // object space to camera space transformation
-            uniform mat4 modelview_matrix;            
- 
+            uniform mat4 modelview_matrix; 
+           
+            attribute vec4 ambient_occlusion; 
+            varying float ambient_occlusion_term;
+
+
             // camera space to clip coordinates
             uniform mat4 projection_matrix;
- 
  
             // incoming vertex position
             in vec3 vertex_position;
@@ -34,10 +40,15 @@ namespace OpenGL3
             {
               //not a proper transformation if modelview_matrix involves non-uniform scaling
               normal = ( modelview_matrix * vec4( vertex_normal, 0 ) ).xyz;
- 
+
               // transforming the incoming vertex position
               gl_Position = projection_matrix * modelview_matrix * vec4( vertex_position, 1 );
+                            
             }";
+
+
+        //
+             
 
         string fragmentShaderSource = @"
             #version 140
@@ -69,7 +80,8 @@ namespace OpenGL3
  
         Matrix4 projectionMatrix, modelviewMatrix;
  
-        Vector3[] positionVboData = new Vector3[]{
+        Vector3[] positionVboData;
+        /*= new Vector3[]{
             new Vector3(-1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f,  1.0f,  1.0f),
@@ -77,9 +89,12 @@ namespace OpenGL3
             new Vector3(-1.0f, -1.0f, -1.0f),
             new Vector3( 1.0f, -1.0f, -1.0f), 
             new Vector3( 1.0f,  1.0f, -1.0f),
-            new Vector3(-1.0f,  1.0f, -1.0f) };
+            new Vector3(-1.0f,  1.0f, -1.0f) }; */
+
+        Vector3[] normalVboData;
  
-        uint[] indicesVboData = new uint[]{
+        uint[] indicesVboData;
+        /*= new uint[]{
                 // front face
                 0, 1, 2, 2, 3, 0,
                 // top face
@@ -91,7 +106,7 @@ namespace OpenGL3
                 // bottom face
                 0, 1, 5, 5, 4, 0,
                 // right face
-                1, 5, 6, 6, 2, 1, };
+                1, 5, 6, 6, 2, 1, }; */
 
         public HelloGL3()
             : base( 640, 480, // width, height
@@ -114,7 +129,8 @@ namespace OpenGL3
             SetProjectionMatrix( Matrix4.Perspective( 1.3f, widthToHeight, 1, 20 ) );
  
             SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, 0, -4 ) );
- 
+
+            LoadObjData();
             LoadVertexPositions();
             LoadVertexNormals();
             LoadIndexer();
@@ -122,6 +138,99 @@ namespace OpenGL3
             // Other state
             GL.Enable( EnableCap.DepthTest );
             GL.ClearColor( 0, 0.1f, 0.4f, 1 );
+        }
+
+        private void LoadObjData()
+        {
+            int v, vn, vt, f;
+            Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
+            Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/\\d* (?<b>\\d*)/\\d*/\\d* (?<c>\\d*)/\\d*/\\d*");
+
+            using (StreamReader tr = new StreamReader("c:\\temp\\ball.obj"))
+            {
+                v  = 0;
+		        vn = 0;
+			    vt = 0;
+			    f  = 0;
+                
+                string line;
+                Match vertexMatch, faceMatch;
+
+                //Count component lines and allocate memory.
+				while (tr.Peek() > -1)
+				{
+                    line = tr.ReadLine();
+
+					if (line.StartsWith("vn"))
+						vn++;
+
+                    else if (line.StartsWith("vt"))
+						vt++;
+
+					else if (line.StartsWith("v"))
+						v++;
+
+					else if (line.StartsWith("f"))
+						f++;
+				}
+                Console.WriteLine("Line Count:");
+				Console.WriteLine("v  = {0}", v);
+				Console.WriteLine("vn = {0}", vn);				
+				Console.WriteLine("f  = {0}", f);
+
+                positionVboData = new Vector3[v];
+                normalVboData = new Vector3[vn];
+                indicesVboData = new uint[f*3];
+
+                tr.BaseStream.Seek(0, SeekOrigin.Begin);
+                tr.DiscardBufferedData();
+
+                int vCount = 0;
+                int vnCount = 0;
+                int fCount = 0;
+
+                float x, y, z;
+                while (tr.Peek() > -1)
+                {
+                    line = tr.ReadLine();
+                    vertexMatch = vertexRegex.Match(line);
+                    faceMatch = facesRegex.Match(line);
+
+                    if (vertexMatch.Success)
+                    {
+                        x = (float)Convert.ToDecimal(vertexMatch.Groups["xcoord"].Value);
+                        y = (float)Convert.ToDecimal(vertexMatch.Groups["ycoord"].Value);
+                        z = (float)Convert.ToDecimal(vertexMatch.Groups["zcoord"].Value);
+
+                        if (line.StartsWith("vn"))
+                            normalVboData[vnCount++] = new Vector3(x, y, z);
+
+                        else if (line.StartsWith("v") && !line.StartsWith("vt"))
+                            positionVboData[vCount++] = new Vector3(x, y, z);
+                    }
+
+                    if (faceMatch.Success)
+                    {
+                        if (line.StartsWith("f"))
+                        {
+                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["a"].Value) - (uint)1;
+                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["b"].Value) - (uint)1;
+                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["c"].Value) - (uint)1;
+                        }
+                    }
+                    
+                }
+
+                tr.Close();
+            }
+            foreach (Vector3 member in positionVboData)
+                Console.WriteLine(member);
+
+            foreach (Vector3 member in normalVboData)
+                Console.WriteLine(member);
+
+            foreach (uint member in indicesVboData)
+                Console.WriteLine(member);
         }
 
         private void CreateShaders()
@@ -136,7 +245,7 @@ namespace OpenGL3
             GL.CompileShader( fragmentShaderHandle );
         }
 
-         private void CreateProgram()
+        private void CreateProgram()
         {
             shaderProgramHandle = GL.CreateProgram();
  
@@ -205,7 +314,7 @@ namespace OpenGL3
 
          protected override void OnUpdateFrame(FrameEventArgs e)
          {
-             SetModelviewMatrix(Matrix4.RotateY((float)e.Time) * modelviewMatrix);
+             SetModelviewMatrix(Matrix4.RotateY((float)e.Time/2) * modelviewMatrix);
 
              if (Keyboard[OpenTK.Input.Key.Escape])
                  Exit();
