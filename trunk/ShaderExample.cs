@@ -143,10 +143,11 @@ namespace OpenGL3
         private void LoadObjData()
         {
             int v, vn, vt, f;
+            int[] vecnormPairs;
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
-            Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/\\d* (?<b>\\d*)/\\d*/\\d* (?<c>\\d*)/\\d*/\\d*");
+            Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader("c:\\temp\\ball.obj"))
+            using (StreamReader tr = new StreamReader("c:\\temp\\cube.obj"))
             {
                 v  = 0;
 		        vn = 0;
@@ -181,6 +182,8 @@ namespace OpenGL3
                 positionVboData = new Vector3[v];
                 normalVboData = new Vector3[vn];
                 indicesVboData = new uint[f*3];
+                vecnormPairs = new int[f*6];
+                
 
                 tr.BaseStream.Seek(0, SeekOrigin.Begin);
                 tr.DiscardBufferedData();
@@ -188,6 +191,7 @@ namespace OpenGL3
                 int vCount = 0;
                 int vnCount = 0;
                 int fCount = 0;
+                int fnCount = 0;
 
                 float x, y, z;
                 while (tr.Peek() > -1)
@@ -216,6 +220,12 @@ namespace OpenGL3
                             indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["a"].Value) - (uint)1;
                             indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["b"].Value) - (uint)1;
                             indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["c"].Value) - (uint)1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["a"].Value) - 1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["d"].Value) - 1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["b"].Value) - 1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["e"].Value) - 1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["c"].Value) - 1;
+                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["f"].Value) - 1;
                         }
                     }
                     
@@ -223,6 +233,9 @@ namespace OpenGL3
 
                 tr.Close();
             }
+
+
+
             foreach (Vector3 member in positionVboData)
                 Console.WriteLine(member);
 
@@ -230,7 +243,20 @@ namespace OpenGL3
                 Console.WriteLine(member);
 
             foreach (uint member in indicesVboData)
-                Console.WriteLine(member);
+                Console.Write(member);
+
+            Console.WriteLine("\n\nVertex/Normal Pairs");
+
+            for (int member = 0; member < vecnormPairs.Length; member++)
+            {
+                Console.Write(vecnormPairs[member++]);
+                Console.Write("{0} ", vecnormPairs[member++]);
+                Console.Write(vecnormPairs[member++]);
+                Console.Write("{0} ", vecnormPairs[member++]);
+                Console.Write(vecnormPairs[member++]);
+                Console.Write("{0} \n", vecnormPairs[member]);
+            }
+
         }
 
         private void CreateShaders()
@@ -295,8 +321,8 @@ namespace OpenGL3
              GL.GenBuffers(1, out normalVboHandle);
              GL.BindBuffer(BufferTarget.ArrayBuffer, normalVboHandle);
              GL.BufferData<Vector3>(BufferTarget.ArrayBuffer,
-                 new IntPtr(positionVboData.Length * Vector3.SizeInBytes),
-                 positionVboData, BufferUsageHint.StaticDraw);
+                 new IntPtr(normalVboData.Length * Vector3.SizeInBytes),
+                 normalVboData, BufferUsageHint.StaticDraw);
 
              GL.EnableVertexAttribArray(1);
              GL.BindAttribLocation(shaderProgramHandle, 1, "vertex_normal");
