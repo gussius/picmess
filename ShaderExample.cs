@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using LearnShader;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using OpenTK;
@@ -80,8 +81,7 @@ namespace OpenGL3
  
         Matrix4 projectionMatrix, modelviewMatrix;
  
-        Vector3[] positionVboData;
-        /*= new Vector3[]{
+        Vector3[] positionVboData= new Vector3[]{
             new Vector3(-1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f,  1.0f,  1.0f),
@@ -89,12 +89,11 @@ namespace OpenGL3
             new Vector3(-1.0f, -1.0f, -1.0f),
             new Vector3( 1.0f, -1.0f, -1.0f), 
             new Vector3( 1.0f,  1.0f, -1.0f),
-            new Vector3(-1.0f,  1.0f, -1.0f) }; */
+            new Vector3(-1.0f,  1.0f, -1.0f) }; 
 
         Vector3[] normalVboData;
  
-        uint[] indicesVboData;
-        /*= new uint[]{
+        uint[] indicesVboData = new uint[]{
                 // front face
                 0, 1, 2, 2, 3, 0,
                 // top face
@@ -106,7 +105,7 @@ namespace OpenGL3
                 // bottom face
                 0, 1, 5, 5, 4, 0,
                 // right face
-                1, 5, 6, 6, 2, 1, }; */
+                1, 5, 6, 6, 2, 1, }; 
 
         public HelloGL3()
             : base( 640, 480, // width, height
@@ -140,51 +139,50 @@ namespace OpenGL3
             GL.ClearColor( 0, 0.1f, 0.4f, 1 );
         }
 
+
+
         private void LoadObjData()
         {
             int v, vn, vt, f;
-            int[] vecnormPairs;
+            VNPair[] objIndexBuffer;
+            int[] indexBuffer;
+            VNPair[] vertexBuffer;
+            Vector3[] objVertexBuffer;
+            Vector3[] objNormalBuffer;
+
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
             using (StreamReader tr = new StreamReader("c:\\temp\\cube.obj"))
             {
-                v  = 0;
-		        vn = 0;
-			    vt = 0;
-			    f  = 0;
-                
+                // initialise the array counters
+                v = 0; vn = 0; vt = 0; f = 0;
+
                 string line;
                 Match vertexMatch, faceMatch;
 
-                //Count component lines and allocate memory.
-				while (tr.Peek() > -1)
-				{
+                // First parse for counting lines to ascertain array lengths
+                while (tr.Peek() > -1)
+                {
                     line = tr.ReadLine();
 
-					if (line.StartsWith("vn"))
-						vn++;
-
+                    if (line.StartsWith("vn"))
+                        vn++;
                     else if (line.StartsWith("vt"))
-						vt++;
+                        vt++;
+                    else if (line.StartsWith("v"))
+                        v++;
+                    else if (line.StartsWith("f"))
+                        f++;
+                }
 
-					else if (line.StartsWith("v"))
-						v++;
+                objVertexBuffer = new Vector3[v];
+                vertexBuffer = new VNPair[f * 3];
+                indexBuffer = new int[f * 3];
+                objNormalBuffer = new Vector3[vn];
+                objIndexBuffer = new VNPair[f * 3];
 
-					else if (line.StartsWith("f"))
-						f++;
-				}
-                Console.WriteLine("Line Count:");
-				Console.WriteLine("v  = {0}", v);
-				Console.WriteLine("vn = {0}", vn);				
-				Console.WriteLine("f  = {0}", f);
-
-                positionVboData = new Vector3[v];
-                normalVboData = new Vector3[vn];
-                indicesVboData = new uint[f*3];
-                vecnormPairs = new int[f*6];
-                
-
+                // Reset filestream back to zero
                 tr.BaseStream.Seek(0, SeekOrigin.Begin);
                 tr.DiscardBufferedData();
 
@@ -192,8 +190,9 @@ namespace OpenGL3
                 int vnCount = 0;
                 int fCount = 0;
                 int fnCount = 0;
-
                 float x, y, z;
+
+                // Second parse for loading data into arrays
                 while (tr.Peek() > -1)
                 {
                     line = tr.ReadLine();
@@ -207,57 +206,90 @@ namespace OpenGL3
                         z = (float)Convert.ToDecimal(vertexMatch.Groups["zcoord"].Value);
 
                         if (line.StartsWith("vn"))
-                            normalVboData[vnCount++] = new Vector3(x, y, z);
+                            objNormalBuffer[vnCount++] = new Vector3(x, y, z);
 
                         else if (line.StartsWith("v") && !line.StartsWith("vt"))
-                            positionVboData[vCount++] = new Vector3(x, y, z);
+                            objVertexBuffer[vCount++] = new Vector3(x, y, z);
                     }
 
                     if (faceMatch.Success)
                     {
                         if (line.StartsWith("f"))
                         {
-                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["a"].Value) - (uint)1;
-                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["b"].Value) - (uint)1;
-                            indicesVboData[fCount++] = Convert.ToUInt16(faceMatch.Groups["c"].Value) - (uint)1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["a"].Value) - 1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["d"].Value) - 1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["b"].Value) - 1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["e"].Value) - 1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["c"].Value) - 1;
-                            vecnormPairs[fnCount++] = Convert.ToInt16(faceMatch.Groups["f"].Value) - 1;
+                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["a"].Value);
+                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["d"].Value);
+                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["b"].Value);
+                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["e"].Value);
+                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["c"].Value);
+                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["f"].Value);
                         }
                     }
-                    
+                }
+                tr.Close();
+
+                for (int i = 0; i < objIndexBuffer.Length; i++)
+                {
+                    Console.Write(objIndexBuffer[i++] + ", ");
+                    Console.Write(objIndexBuffer[i++] + ", ");
+                    Console.Write(objIndexBuffer[i] + "\n");
                 }
 
-                tr.Close();
+                int vPair = 0;
+                int iCounter = 0;
+                // Now process arrays to sort and duplicate vertices with multiple normals
+                foreach (VNPair index in objIndexBuffer)
+                {
+                    /*if (vPair == 0)
+                    {
+                        vertexBuffer[vPair++] = index;
+                        Console.Write("add vertex {0}\n", index);
+                        indexBuffer[iCounter++] = index.P;
+                        Console.Write("add index {0}\n", index.P);
+                    }
+                    */
+                    for (int i = 0; i <= vPair; i++)
+                    {
+                        Console.WriteLine("loop {0}", i);
+                        if (vertexBuffer[i] == index)
+                        {
+                            indexBuffer[iCounter++] = index.P;
+                            Console.Write("add index {0}\n", index.P);
+                            Console.Write("vPair {0}\n", vPair);
+                            break;
+                        }
+                        else
+                        {
+                            if (i == vPair)
+                            {
+                                vertexBuffer[vPair++] = index;
+                                Console.Write("add vertex {0}\n", index);
+                                indexBuffer[iCounter++] = index.P;
+                                Console.Write("add index {0}\n", index.P);
+                                Console.Write("vPair {0}\n", vPair);
+                                Console.Write("iCounter {0}\n", iCounter);
+                                break;
+                            }
+                        }
+                        
+                    }
+
+                }
+
+                foreach (VNPair pair in vertexBuffer)
+                {
+                    Console.Write(pair);
+                }
+
+                foreach (int idx in indexBuffer)
+                {
+                    Console.Write(idx);
+                }
             }
-
-
-
-            foreach (Vector3 member in positionVboData)
-                Console.WriteLine(member);
-
-            foreach (Vector3 member in normalVboData)
-                Console.WriteLine(member);
-
-            foreach (uint member in indicesVboData)
-                Console.Write(member);
-
-            Console.WriteLine("\n\nVertex/Normal Pairs");
-
-            for (int member = 0; member < vecnormPairs.Length; member++)
-            {
-                Console.Write(vecnormPairs[member++]);
-                Console.Write("{0} ", vecnormPairs[member++]);
-                Console.Write(vecnormPairs[member++]);
-                Console.Write("{0} ", vecnormPairs[member++]);
-                Console.Write(vecnormPairs[member++]);
-                Console.Write("{0} \n", vecnormPairs[member]);
-            }
-
         }
+
+               
+
+
 
         private void CreateShaders()
         {
@@ -321,8 +353,8 @@ namespace OpenGL3
              GL.GenBuffers(1, out normalVboHandle);
              GL.BindBuffer(BufferTarget.ArrayBuffer, normalVboHandle);
              GL.BufferData<Vector3>(BufferTarget.ArrayBuffer,
-                 new IntPtr(normalVboData.Length * Vector3.SizeInBytes),
-                 normalVboData, BufferUsageHint.StaticDraw);
+                 new IntPtr(positionVboData.Length * Vector3.SizeInBytes),
+                 positionVboData, BufferUsageHint.StaticDraw);
 
              GL.EnableVertexAttribArray(1);
              GL.BindAttribLocation(shaderProgramHandle, 1, "vertex_normal");
