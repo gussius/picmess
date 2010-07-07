@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using LearnShader;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using OpenTK;
@@ -10,7 +9,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 //using OpenTK.Math;
  
-namespace OpenGL3
+namespace LearnShader
 {
     public class HelloGL3: GameWindow
     {
@@ -81,7 +80,8 @@ namespace OpenGL3
  
         Matrix4 projectionMatrix, modelviewMatrix;
  
-        Vector3[] positionVboData= new Vector3[]{
+        Vector3[] positionVboData;
+        /*= new Vector3[]{
             new Vector3(-1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f,  1.0f,  1.0f),
@@ -89,11 +89,12 @@ namespace OpenGL3
             new Vector3(-1.0f, -1.0f, -1.0f),
             new Vector3( 1.0f, -1.0f, -1.0f), 
             new Vector3( 1.0f,  1.0f, -1.0f),
-            new Vector3(-1.0f,  1.0f, -1.0f) }; 
+            new Vector3(-1.0f,  1.0f, -1.0f) }; */
 
         Vector3[] normalVboData;
  
-        uint[] indicesVboData = new uint[]{
+        uint[] indicesVboData;
+        /*= new uint[]{
                 // front face
                 0, 1, 2, 2, 3, 0,
                 // top face
@@ -105,7 +106,7 @@ namespace OpenGL3
                 // bottom face
                 0, 1, 5, 5, 4, 0,
                 // right face
-                1, 5, 6, 6, 2, 1, }; 
+                1, 5, 6, 6, 2, 1, }; */
 
         public HelloGL3()
             : base( 640, 480, // width, height
@@ -138,8 +139,6 @@ namespace OpenGL3
             GL.Enable( EnableCap.DepthTest );
             GL.ClearColor( 0, 0.1f, 0.4f, 1 );
         }
-
-
 
         private void LoadObjData()
         {
@@ -188,7 +187,6 @@ namespace OpenGL3
 
                 int vCount = 0;
                 int vnCount = 0;
-                int fCount = 0;
                 int fnCount = 0;
                 float x, y, z;
 
@@ -216,80 +214,55 @@ namespace OpenGL3
                     {
                         if (line.StartsWith("f"))
                         {
-                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["a"].Value);
-                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["d"].Value);
-                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["b"].Value);
-                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["e"].Value);
-                            objIndexBuffer[fnCount].P = Convert.ToInt16(faceMatch.Groups["c"].Value);
-                            objIndexBuffer[fnCount++].N = Convert.ToInt16(faceMatch.Groups["f"].Value);
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["a"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["d"].Value) - 1);
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["b"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["e"].Value) - 1);
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["c"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["f"].Value) - 1);
                         }
                     }
                 }
                 tr.Close();
 
-                for (int i = 0; i < objIndexBuffer.Length; i++)
-                {
-                    Console.Write(objIndexBuffer[i++] + ", ");
-                    Console.Write(objIndexBuffer[i++] + ", ");
-                    Console.Write(objIndexBuffer[i] + "\n");
-                }
-
                 int vPair = 0;
                 int iCounter = 0;
+
                 // Now process arrays to sort and duplicate vertices with multiple normals
                 foreach (VNPair index in objIndexBuffer)
                 {
-                    /*if (vPair == 0)
-                    {
-                        vertexBuffer[vPair++] = index;
-                        Console.Write("add vertex {0}\n", index);
-                        indexBuffer[iCounter++] = index.P;
-                        Console.Write("add index {0}\n", index.P);
-                    }
-                    */
                     for (int i = 0; i <= vPair; i++)
                     {
-                        Console.WriteLine("loop {0}", i);
+                        
                         if (vertexBuffer[i] == index)
                         {
-                            indexBuffer[iCounter++] = index.P;
-                            Console.Write("add index {0}\n", index.P);
-                            Console.Write("vPair {0}\n", vPair);
+                            indexBuffer[iCounter++] = i;
                             break;
                         }
                         else
                         {
                             if (i == vPair)
                             {
+                                indexBuffer[iCounter++] = i;
                                 vertexBuffer[vPair++] = index;
-                                Console.Write("add vertex {0}\n", index);
-                                indexBuffer[iCounter++] = index.P;
-                                Console.Write("add index {0}\n", index.P);
-                                Console.Write("vPair {0}\n", vPair);
-                                Console.Write("iCounter {0}\n", iCounter);
                                 break;
                             }
                         }
-                        
                     }
-
                 }
 
-                foreach (VNPair pair in vertexBuffer)
+                // Populate the actual VBO and IBO
+                positionVboData = new Vector3[vPair];
+                normalVboData = new Vector3[
+                indicesVboData = new uint[iCounter];
+                for (int i = 0; i < positionVboData.Length; i++)
                 {
-                    Console.Write(pair);
+                    positionVboData[i] = objVertexBuffer[vertexBuffer[i].P];
+
                 }
 
-                foreach (int idx in indexBuffer)
-                {
-                    Console.Write(idx);
-                }
             }
         }
-
-               
-
-
 
         private void CreateShaders()
         {
