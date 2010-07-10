@@ -7,12 +7,7 @@ namespace LearnShader
     {
         private Vector3 position;
         private Vector3 normal;
-
-        public Vertex()
-        {
-            this.position = new Vector3(0, 0, 0);
-            this.normal = new Vector3(0, 0, 0);
-        }
+        private static readonly int sizeInBytes = 24;
 
         public Vertex(Vector3 position, Vector3 normal)
         {
@@ -31,6 +26,18 @@ namespace LearnShader
             get { return normal; }
             set { normal = value; }
         }
+
+        public static int SizeInBytes
+        {
+            get { return sizeInBytes; }
+        }
+
+        public override string ToString()
+        {
+            return "Position: {" + position.X + ", " + position.Y + ", " + position.Z + "}\n" +
+                   "Normal:   {" + normal.X + ", " + normal.Y + ", " + normal.Z + "}";
+        }
+
     }
 
 
@@ -79,6 +86,16 @@ namespace LearnShader
         public override string ToString()
         {
             return "{" + this.P + ", " + this.N + "}";
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public int P
