@@ -7,14 +7,17 @@ using System.Diagnostics;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using System.Runtime.InteropServices;
 //using OpenTK.Math;
  
 namespace LearnShader
 {
     public class HelloGL3: GameWindow
     {
+        #region string vertexShaderSource
         string vertexShaderSource = @"
             
+
             #version 140
  
             // object space to camera space transformation
@@ -45,11 +48,9 @@ namespace LearnShader
               gl_Position = projection_matrix * modelview_matrix * vec4( vertex_position, 1 );
                             
             }";
+        #endregion
 
-
-        //
-             
-
+        #region string fragmentShaderSource
         string fragmentShaderSource = @"
             #version 140
  
@@ -68,6 +69,7 @@ namespace LearnShader
               float diffuse = clamp( dot( lightVecNormalized, normalize( normal ) ), 0.0, 1.0 );
               out_frag_color = vec4( ambient + diffuse * lightColor, 1.0 );
             }";
+        #endregion
 
         int vertexShaderHandle,
             fragmentShaderHandle,
@@ -76,12 +78,15 @@ namespace LearnShader
             projectionMatrixLocation,
             positionVboHandle,
             normalVboHandle,
-            indicesVboHandle;
+            indicesVboHandle,
+            VboID;
  
         Matrix4 projectionMatrix, modelviewMatrix;
- 
-        Vector3[] positionVboData;
-        /*= new Vector3[]{
+
+        Vertex[] vertexArray;
+        uint[] indexArray;
+
+        Vector3[] positionVboData = new Vector3[]{
             new Vector3(-1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f, -1.0f,  1.0f),
             new Vector3( 1.0f,  1.0f,  1.0f),
@@ -89,12 +94,9 @@ namespace LearnShader
             new Vector3(-1.0f, -1.0f, -1.0f),
             new Vector3( 1.0f, -1.0f, -1.0f), 
             new Vector3( 1.0f,  1.0f, -1.0f),
-            new Vector3(-1.0f,  1.0f, -1.0f) }; */
-
-        Vector3[] normalVboData;
+            new Vector3(-1.0f,  1.0f, -1.0f) }; 
  
-        uint[] indicesVboData;
-        /*= new uint[]{
+        uint[] indicesVboData = new uint[]{
                 // front face
                 0, 1, 2, 2, 3, 0,
                 // top face
@@ -106,19 +108,11 @@ namespace LearnShader
                 // bottom face
                 0, 1, 5, 5, 4, 0,
                 // right face
-                1, 5, 6, 6, 2, 1, }; */
+                1, 5, 6, 6, 2, 1, }; 
 
-        public HelloGL3()
-            : base( 640, 480, // width, height
-            new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16 ), "OpenGL 3.1 Example", 0,
-            DisplayDevice.Default, 3, 1, // use the default display device, request a 3.1 OpenGL context
-            GraphicsContextFlags.Debug ) //this will help us track down bugs
+        public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16 ), "OpenGL 3.1 Example", 0,
+            DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug )
         {
-        /*}
- 
-        public override void OnLoad( EventArgs e )
-        {
-            base.OnLoad(e);*/                        
             CreateShaders(); 
             CreateProgram();
             GL.UseProgram( shaderProgramHandle );
@@ -131,8 +125,9 @@ namespace LearnShader
             SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, 0, -4 ) );
 
             LoadObjData();
-            LoadVertexPositions();
-            LoadVertexNormals();
+            LoadVertices();
+            //LoadVertexPositions();
+            //LoadVertexNormals();
             LoadIndexer();
  
             // Other state
@@ -160,7 +155,7 @@ namespace LearnShader
                 string line;
                 Match vertexMatch, faceMatch;
 
-                // First parse for counting lines to ascertain array lengths
+                #region First pass for counting lines to ascertain array lengths
                 while (tr.Peek() > -1)
                 {
                     line = tr.ReadLine();
@@ -174,6 +169,7 @@ namespace LearnShader
                     else if (line.StartsWith("f"))
                         f++;
                 }
+#endregion
 
                 objVertexBuffer = new Vector3[v];
                 vertexBuffer = new VNPair[f * 3];
@@ -189,8 +185,8 @@ namespace LearnShader
                 int vnCount = 0;
                 int fnCount = 0;
                 float x, y, z;
-
-                // Second parse for loading data into arrays
+                
+                #region Second pass for loading data into arrays
                 while (tr.Peek() > -1)
                 {
                     line = tr.ReadLine();
@@ -223,45 +219,52 @@ namespace LearnShader
                         }
                     }
                 }
+                #endregion
+                
                 tr.Close();
+            }
 
-                int vPair = 0;
-                int iCounter = 0;
+            int vPair = 0;
+            int iCounter = 0;
 
-                // Now process arrays to sort and duplicate vertices with multiple normals
-                foreach (VNPair index in objIndexBuffer)
+            #region Now process arrays to sort and duplicate vertices with multiple normals
+            foreach (VNPair index in objIndexBuffer)
+            {
+                for (int i = 0; i <= vPair; i++)
                 {
-                    for (int i = 0; i <= vPair; i++)
-                    {
                         
-                        if (vertexBuffer[i] == index)
+                    if (vertexBuffer[i] == index)
+                    {
+                        indexBuffer[iCounter++] = i;
+                        break;
+                    }
+                    else
+                    {
+                        if (i == vPair)
                         {
                             indexBuffer[iCounter++] = i;
+                            vertexBuffer[vPair++] = index;
                             break;
-                        }
-                        else
-                        {
-                            if (i == vPair)
-                            {
-                                indexBuffer[iCounter++] = i;
-                                vertexBuffer[vPair++] = index;
-                                break;
-                            }
                         }
                     }
                 }
-
-                // Populate the actual VBO and IBO
-                positionVboData = new Vector3[vPair];
-                normalVboData = new Vector3[
-                indicesVboData = new uint[iCounter];
-                for (int i = 0; i < positionVboData.Length; i++)
-                {
-                    positionVboData[i] = objVertexBuffer[vertexBuffer[i].P];
-
-                }
-
             }
+#endregion
+
+
+            #region Populate vertex array...
+            vertexArray = new Vertex[vPair];
+            for (int i = 0; i < vPair; i++)
+            {
+                vertexArray[i].Position = objVertexBuffer[vertexBuffer[i].P];
+                vertexArray[i].Normal = objNormalBuffer[vertexBuffer[i].N];
+            }
+
+            for (int i = 0; i < iCounter; i++)
+            {
+                indexArray[i] = (uint)indexBuffer[i];
+            }
+            #endregion
         }
 
         private void CreateShaders()
@@ -334,13 +337,30 @@ namespace LearnShader
              GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vector3.SizeInBytes, 0);
          }
 
+         private void LoadVertices()
+         {
+             GL.GenBuffers(1, out VboID);
+             GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
+             GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
+                 new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
+                 vertexArray, BufferUsageHint.StaticDraw);
+
+             GL.EnableVertexAttribArray(0);
+             GL.BindAttribLocation(shaderProgramHandle, 0, "vertex_position");
+             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
+
+             GL.EnableVertexAttribArray(1);
+             GL.BindAttribLocation(shaderProgramHandle, 1, "vertex_normal");
+             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+         }
+
          private void LoadIndexer()
          {
              GL.GenBuffers(1, out indicesVboHandle);
              GL.BindBuffer(BufferTarget.ElementArrayBuffer, indicesVboHandle);
              GL.BufferData<uint>(BufferTarget.ElementArrayBuffer,
                  new IntPtr(indicesVboData.Length * Vector3.SizeInBytes),
-                 indicesVboData, BufferUsageHint.StaticDraw);
+                 indexArray, BufferUsageHint.StaticDraw);
          }
 
          protected override void OnUpdateFrame(FrameEventArgs e)
