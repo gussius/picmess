@@ -80,6 +80,8 @@ namespace LearnShader
             normalVboHandle,
             indicesVboHandle,
             VboID;
+        int triangleCount = 0;
+        double timeCount = 0;
  
         Matrix4 projectionMatrix, modelviewMatrix;
 
@@ -126,8 +128,6 @@ namespace LearnShader
 
             LoadObjData();
             LoadVertices();
-            //LoadVertexPositions();
-            //LoadVertexNormals();
             LoadIndexer();
  
             // Other state
@@ -147,7 +147,7 @@ namespace LearnShader
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader("c:\\temp\\cube.obj"))
+            using (StreamReader tr = new StreamReader("c:\\temp\\torus.obj"))
             {
                 // initialise the array counters
                 v = 0; vn = 0; vt = 0; f = 0;
@@ -176,6 +176,7 @@ namespace LearnShader
                 indexBuffer = new int[f * 3];
                 objNormalBuffer = new Vector3[vn];
                 objIndexBuffer = new VNPair[f * 3];
+                Console.WriteLine("v = {0}\nf= {1}", v, f);
 
                 // Reset filestream back to zero
                 tr.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -254,6 +255,8 @@ namespace LearnShader
 
             #region Populate vertex array...
             vertexArray = new Vertex[vPair];
+            indexArray = new uint[iCounter];
+
             for (int i = 0; i < vPair; i++)
             {
                 vertexArray[i].Position = objVertexBuffer[vertexBuffer[i].P];
@@ -265,6 +268,18 @@ namespace LearnShader
                 indexArray[i] = (uint)indexBuffer[i];
             }
             #endregion
+
+            foreach (Vertex vertex in vertexArray)
+            {
+                Console.WriteLine(vertex);
+            }
+
+            foreach (uint member in indexArray)
+            {
+                Console.Write("{0} ", member);
+            }
+
+            
         }
 
         private void CreateShaders()
@@ -359,7 +374,7 @@ namespace LearnShader
              GL.GenBuffers(1, out indicesVboHandle);
              GL.BindBuffer(BufferTarget.ElementArrayBuffer, indicesVboHandle);
              GL.BufferData<uint>(BufferTarget.ElementArrayBuffer,
-                 new IntPtr(indicesVboData.Length * Vector3.SizeInBytes),
+                 new IntPtr(indexArray.Length * Vector3.SizeInBytes),
                  indexArray, BufferUsageHint.StaticDraw);
          }
 
@@ -376,7 +391,7 @@ namespace LearnShader
              GL.Viewport(0, 0, Width, Height);
              GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-             GL.DrawElements(BeginMode.Triangles, indicesVboData.Length,
+             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
                  DrawElementsType.UnsignedInt, IntPtr.Zero);
 
              GL.Flush();
