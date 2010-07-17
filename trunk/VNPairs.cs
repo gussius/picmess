@@ -1,19 +1,15 @@
 ﻿using System;
 using OpenTK;
+using System.Runtime.Serialization;
 
 namespace LearnShader
 {
-    struct Vertex
+    [Serializable]
+    struct Vertex : ISerializable
     {
         private Vector3 position;
         private Vector3 normal;
         private static readonly int sizeInBytes = 24;
-
-        public Vertex(Vector3 position, Vector3 normal)
-        {
-            this.position = position;
-            this.normal = normal;
-        }
 
         public Vector3 Position
         {
@@ -37,7 +33,24 @@ namespace LearnShader
             return "Position: {" + position.X + ", " + position.Y + ", " + position.Z + "}\n" +
                    "Normal:   {" + normal.X + ", " + normal.Y + ", " + normal.Z + "}";
         }
+        
+        public Vertex(Vector3 position, Vector3 normal)
+        {
+            this.position = position;
+            this.normal = normal;
+        }
 
+        public Vertex(SerializationInfo info, StreamingContext context)
+        {
+            position = (Vector3)info.GetValue("position", typeof(Vector3));
+            normal = (Vector3)info.GetValue("normal", typeof(Vector3));
+        }
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("position", position);
+            info.AddValue("normal", normal);
+        }
     }
 
 
