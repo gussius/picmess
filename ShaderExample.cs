@@ -8,7 +8,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
-//using OpenTK.Math;
+using System.Runtime.Serialization.Formatters.Binary;
  
 namespace LearnShader
 {
@@ -76,41 +76,13 @@ namespace LearnShader
             shaderProgramHandle,
             modelviewMatrixLocation,
             projectionMatrixLocation,
-            positionVboHandle,
-            normalVboHandle,
             indicesVboHandle,
             VboID;
-        int triangleCount = 0;
-        double timeCount = 0;
  
         Matrix4 projectionMatrix, modelviewMatrix;
 
         Vertex[] vertexArray;
         uint[] indexArray;
-
-        Vector3[] positionVboData = new Vector3[]{
-            new Vector3(-1.0f, -1.0f,  1.0f),
-            new Vector3( 1.0f, -1.0f,  1.0f),
-            new Vector3( 1.0f,  1.0f,  1.0f),
-            new Vector3(-1.0f,  1.0f,  1.0f),
-            new Vector3(-1.0f, -1.0f, -1.0f),
-            new Vector3( 1.0f, -1.0f, -1.0f), 
-            new Vector3( 1.0f,  1.0f, -1.0f),
-            new Vector3(-1.0f,  1.0f, -1.0f) }; 
- 
-        uint[] indicesVboData = new uint[]{
-                // front face
-                0, 1, 2, 2, 3, 0,
-                // top face
-                3, 2, 6, 6, 7, 3,
-                // back face
-                7, 6, 5, 5, 4, 7,
-                // left face
-                4, 0, 3, 3, 7, 4,
-                // bottom face
-                0, 1, 5, 5, 4, 0,
-                // right face
-                1, 5, 6, 6, 2, 1, }; 
 
         public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16 ), "OpenGL 3.1 Example", 0,
             DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug )
@@ -122,11 +94,13 @@ namespace LearnShader
             QueryMatrixLocations();
  
             float widthToHeight = ClientSize.Width / ( float )ClientSize.Height;
-            SetProjectionMatrix( Matrix4.Perspective( 1.3f, widthToHeight, 1, 20 ) );
+            SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 30));
  
-            SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, 0, -4 ) );
+            SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
 
-            LoadObjData();
+            //LoadObjData();
+            LoadFile("scene.gus");
+            //SaveFile();
             LoadVertices();
             LoadIndexer();
  
@@ -147,7 +121,7 @@ namespace LearnShader
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader("c:\\temp\\torus.obj"))
+            using (StreamReader tr = new StreamReader("c:\\temp\\boxes.obj"))
             {
                 // initialise the array counters
                 v = 0; vn = 0; vt = 0; f = 0;
@@ -176,7 +150,6 @@ namespace LearnShader
                 indexBuffer = new int[f * 3];
                 objNormalBuffer = new Vector3[vn];
                 objIndexBuffer = new VNPair[f * 3];
-                Console.WriteLine("v = {0}\nf= {1}", v, f);
 
                 // Reset filestream back to zero
                 tr.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -252,7 +225,6 @@ namespace LearnShader
             }
 #endregion
 
-
             #region Populate vertex array...
             vertexArray = new Vertex[vPair];
             indexArray = new uint[iCounter];
@@ -268,18 +240,6 @@ namespace LearnShader
                 indexArray[i] = (uint)indexBuffer[i];
             }
             #endregion
-
-            foreach (Vertex vertex in vertexArray)
-            {
-                Console.WriteLine(vertex);
-            }
-
-            foreach (uint member in indexArray)
-            {
-                Console.Write("{0} ", member);
-            }
-
-            
         }
 
         private void CreateShaders()
@@ -326,32 +286,6 @@ namespace LearnShader
              GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
          }
 
-         private void LoadVertexPositions()
-         {
-             GL.GenBuffers(1, out positionVboHandle);
-             GL.BindBuffer(BufferTarget.ArrayBuffer, positionVboHandle);
-             GL.BufferData<Vector3>(BufferTarget.ArrayBuffer,
-                 new IntPtr(positionVboData.Length * Vector3.SizeInBytes),
-                 positionVboData, BufferUsageHint.StaticDraw);
-
-             GL.EnableVertexAttribArray(0);
-             GL.BindAttribLocation(shaderProgramHandle, 0, "vertex_position");
-             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vector3.SizeInBytes, 0);
-         }
-
-         private void LoadVertexNormals()
-         {
-             GL.GenBuffers(1, out normalVboHandle);
-             GL.BindBuffer(BufferTarget.ArrayBuffer, normalVboHandle);
-             GL.BufferData<Vector3>(BufferTarget.ArrayBuffer,
-                 new IntPtr(positionVboData.Length * Vector3.SizeInBytes),
-                 positionVboData, BufferUsageHint.StaticDraw);
-
-             GL.EnableVertexAttribArray(1);
-             GL.BindAttribLocation(shaderProgramHandle, 1, "vertex_normal");
-             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vector3.SizeInBytes, 0);
-         }
-
          private void LoadVertices()
          {
              GL.GenBuffers(1, out VboID);
@@ -377,13 +311,42 @@ namespace LearnShader
                  new IntPtr(indexArray.Length * Vector3.SizeInBytes),
                  indexArray, BufferUsageHint.StaticDraw);
          }
+        
+         private void SaveFile()
+         {
+             using (Stream stream = File.Open("scene.gus", FileMode.Create))
+             {
+                 BinaryFormatter bformatter = new BinaryFormatter();
+
+                 Console.WriteLine("Writing Scene Information");
+                 bformatter.Serialize(stream, vertexArray);
+                 bformatter.Serialize(stream, indexArray);
+                 stream.Close();
+             }
+         }
+
+         private void LoadFile(string filename)
+         {
+             using (Stream stream = File.Open(filename, FileMode.Open))
+             {
+                 BinaryFormatter bformatter = new BinaryFormatter();
+
+                 Console.WriteLine("Reading Scene Information from \"{0}\"", filename);
+                 vertexArray = (Vertex[])bformatter.Deserialize(stream);
+                 indexArray = (uint[])bformatter.Deserialize(stream);
+                 stream.Close();
+             }
+         }
 
          protected override void OnUpdateFrame(FrameEventArgs e)
          {
              SetModelviewMatrix(Matrix4.RotateY((float)e.Time/2) * modelviewMatrix);
 
              if (Keyboard[OpenTK.Input.Key.Escape])
+             {
+                 //SaveFile();
                  Exit();
+             }
          }
 
          protected override void OnRenderFrame(FrameEventArgs e)
@@ -401,7 +364,7 @@ namespace LearnShader
          protected override void OnResize(EventArgs e)
          {
              float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-             SetProjectionMatrix(Matrix4.Perspective(1.3f, widthToHeight, 1, 20));
+             SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 150));
          }
     }
 
@@ -418,104 +381,5 @@ namespace LearnShader
             }
         }
     }
+
 }
-
-/* Reference to a running basic triangle code
-namespace LearnShader
-{
-    class Game : GameWindow
-	{
-		/// <summary>Creates a 800x600 window with the specified title.</summary>
-	    public Game()
-	        : base(800, 600, GraphicsMode.Default, "OpenTK QBlender Example")
-		{
-	            VSync = VSyncMode.On;
-		}
-	
-	    /// <summary>Load resources here.</summary>
-	    /// <param name="e">Not used.</param>
-	    protected override void OnLoad(EventArgs e)
-	    {
-	        base.OnLoad(e);
-
-			GL.ClearColor(0.1f, 0.2f, 0.5f, 0.0f);
-            GL.Enable(EnableCap.DepthTest);
-        }
-
-	
-        /// <summary>
-        /// Called when your window is resized. Set your viewport here. It is also
-        /// a good place to set up your projection matrix (which probably changes
-        /// along when the aspect ratio of your window).
-        /// </summary>
-        /// <param name="e">Not used.</param>
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-
-            GL.Viewport(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, ClientRectangle.Height);
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView((float)Math.PI / 4, Width / (float)Height, 1.0f, 64.0f);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref projection);
-        }
-
-	
-        /// <summary>
-        /// Called when it is time to setup the next frame. Add you game logic here.
-        /// </summary>
-        /// <param name="e">Contains timing information for framerate independent logic.</param>
-        protected override void OnUpdateFrame(FrameEventArgs e)
-        {
-            base.OnUpdateFrame(e);
-
-            if (Keyboard[Key.Escape])
-                Exit();
-        }
-
-		
-        /// <summary>
-        /// Called when it is time to render the next frame. Add your rendering code here.
-        /// </summary>
-        /// <param name="e">Contains timing information.</param>
-        protected override void OnRenderFrame(FrameEventArgs e)
-        {
-            base.OnRenderFrame(e);
-
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			
-			//Matrix4 modelview = Matrix4.LookAt(Vector3.Zero, Vector3.UnitZ, Vector3.UnitY);
-            //GL.MatrixMode(MatrixMode.Modelview);
-           // GL.LoadMatrix(ref modelview);
-            GL.Begin(BeginMode.Triangles);
-                GL.Color3(0.2f, 0.6f, 0.9f);
-                GL.Vertex3(-1, -1, -4);
-                GL.Color3(0.0f, 0.6f, 0.0f);
-                GL.Vertex3(0, 1, -4);
-                GL.Color3(0.8f, 0.6f, 0.2f);
-                GL.Vertex3(1, -1, -4);
-            GL.End();
-			
-            SwapBuffers();
-        }
-
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        static void Main()
-		{
-            // The 'using' idiom guarantees proper resource cleanup.
-            // We request 30 UpdateFrame events per second, and unlimited
-            // RenderFrame events (as fast as the computer can handle).
-            using (Game game = new Game())
-			{
-                game.Run(30.0);
-			}
-		}
-		
-		
-		
-	}
-}
-*/
-
