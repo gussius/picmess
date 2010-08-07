@@ -127,6 +127,8 @@ namespace LearnShader
 
     class Shader
 	{
+        //TODO: Need to work in sone error control here.
+
 		private int shaderID;
 		private int vertexShader;
 		private int fragmentShader;
@@ -144,7 +146,7 @@ namespace LearnShader
 			string vsString = File.ReadAllText(vsFileName);
             GL.ShaderSource(vertexShader, vsString);
             
-            string fsString = @File.ReadAllText( fsFileName );
+            string fsString = File.ReadAllText( fsFileName );
 			GL.ShaderSource(fragmentShader, fsString);
 
             GL.CompileShader(vertexShader);
@@ -159,11 +161,12 @@ namespace LearnShader
 			ValidateProgram(shaderID);
 
 			// TO DO: Check if program compiled correctly and output error message if need be.
-            string programInfo;
-            GL.GetProgramInfoLog(shaderID, out programInfo);
-            Console.WriteLine("programInfo = {0}", programInfo);
+            Shader.ValidateShader(ShaderID, "shader1.vert");
+            Shader.ValidateShader(ShaderID, "shader1.frag");
+            Shader.ValidateProgram(ShaderID);
 		}
 
+/*      Deconstructor ?? (Need this?)
 		~Shader()
 		{
 			GL.DetachShader(shaderID, fragmentShader);
@@ -173,7 +176,7 @@ namespace LearnShader
 			GL.DeleteShader(vertexShader);
 			GL.DeleteProgram(shaderID);
 		}
-		
+		*/
 		
 		public void Bind()
 		{
