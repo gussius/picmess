@@ -14,77 +14,63 @@ namespace LearnShader
 {
     public class HelloGL3: GameWindow
     {
+        //Shader shader1 = new Shader("shader1.vert", "shader1.frag");
+        
+
+
         #region string vertexShaderSource
         string vertexShaderSource = @"
-            
-
             #version 140
  
-            // object space to camera space transformation
             uniform mat4 modelview_matrix; 
-           
-            attribute vec4 ambient_occlusion; 
-            varying float ambient_occlusion_term;
-
-
-            // camera space to clip coordinates
             uniform mat4 projection_matrix;
- 
-            // incoming vertex position
+
             in vec3 vertex_position;
- 
-            // incoming vertex normal
             in vec3 vertex_normal;
- 
-            // transformed vertex normal
+            in vec3 lightPosition;
+
             out vec3 normal;
+            out vec3 lightPositionNormalized;
  
             void main(void)
             {
-              //not a proper transformation if modelview_matrix involves non-uniform scaling
-              normal = ( modelview_matrix * vec4( vertex_normal, 0 ) ).xyz;
-
-              // transforming the incoming vertex position
-              gl_Position = projection_matrix * modelview_matrix * vec4( vertex_position, 1 );
-                            
+               lightPositionNormalized = normalize(lightPosition);
+               normal = ( modelview_matrix * vec4( vertex_normal, 0 ) ).xyz;
+               gl_Position = projection_matrix * modelview_matrix * vec4( vertex_position, 1 );
             }";
         #endregion
 
         #region string fragmentShaderSource
         string fragmentShaderSource = @"
             #version 140
- 
-            precision highp float;
- 
-            const vec3 ambient = vec3( 0.1, 0.1, 0.1 );
-            const vec3 lightVecNormalized = normalize( vec3( 0.5, 0.5, 2 ) );
-            const vec3 lightColor = vec3( 1.0, 0.8, 0.2 );
- 
+
+            in vec3 lightPositionNormalized;
             in vec3 normal;
- 
-            out vec4 out_frag_color;
- 
+            out vec3 fragColor;
+
             void main(void)
             {
-              float diffuse = clamp( dot( lightVecNormalized, normalize( normal ) ), 0.0, 1.0 );
-              out_frag_color = vec4( ambient + diffuse * lightColor, 1.0 );
+               float lightIntensity = 0.5 * dot(lightPositionNormalized, normal) + 1;
+               fragColor = lightIntensity * vec3( 0.8, 0.5, 0.0 );
             }";
         #endregion
-
+ 
         int vertexShaderHandle,
             fragmentShaderHandle,
             shaderProgramHandle,
             modelviewMatrixLocation,
             projectionMatrixLocation,
+            lightPositionLocation,
             indicesVboHandle,
             VboID;
  
         Matrix4 projectionMatrix, modelviewMatrix;
+        Vector3 lightPosition;
 
         Vertex[] vertexArray;
         uint[] indexArray;
 
-        public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16 ), "OpenGL 3.1 Example", 0,
+        public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16, 0, 8), "OpenGL 3.1 Example", 0,
             DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug )
         {
             CreateShaders(); 
@@ -95,14 +81,22 @@ namespace LearnShader
  
             float widthToHeight = ClientSize.Width / ( float )ClientSize.Height;
             SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 30));
- 
             SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
+            SetLightPosition( new Vector3(3.0f, 4.0f, 5.0f) );
 
             //LoadObjData();
             LoadFile("scene.gus");
             //SaveFile();
             LoadVertices();
             LoadIndexer();
+
+            //Display projectionMatrix and modelViewMatrix
+            Console.WriteLine(projectionMatrix.ToString());
+            Console.WriteLine(modelviewMatrix.ToString());
+
+            //See shader language version
+            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            Console.WriteLine("Shader Version = {0}", shaderVersion);
  
             // Other state
             GL.Enable( EnableCap.DepthTest );
@@ -121,7 +115,7 @@ namespace LearnShader
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader("c:\\temp\\boxes.obj"))
+            using (StreamReader tr = new StreamReader("c:\\temp\\cluster.obj"))
             {
                 // initialise the array counters
                 v = 0; vn = 0; vt = 0; f = 0;
@@ -272,6 +266,7 @@ namespace LearnShader
          {
              projectionMatrixLocation = GL.GetUniformLocation(shaderProgramHandle, "projection_matrix");
              modelviewMatrixLocation = GL.GetUniformLocation(shaderProgramHandle, "modelview_matrix");
+             lightPositionLocation = GL.GetUniformLocation(shaderProgramHandle, "lightPosition");
          }
 
          private void SetModelviewMatrix(Matrix4 matrix)
@@ -284,6 +279,12 @@ namespace LearnShader
          {
              projectionMatrix = matrix;
              GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
+         }
+
+         private void SetLightPosition(Vector3 light)
+         {
+             lightPosition = light;
+             GL.Uniform3(lightPositionLocation, ref lightPosition);
          }
 
          private void LoadVertices()
