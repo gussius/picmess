@@ -9,74 +9,31 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
- 
+
 namespace LearnShader
 {
     public class HelloGL3: GameWindow
     {
-        //Shader shader1 = new Shader("shader1.vert", "shader1.frag");
-        
-
-
-        #region string vertexShaderSource
-        string vertexShaderSource = @"
-            #version 140
- 
-            uniform mat4 modelview_matrix; 
-            uniform mat4 projection_matrix;
-
-            in vec3 vertex_position;
-            in vec3 vertex_normal;
-            in vec3 lightPosition;
-
-            out vec3 normal;
-            out vec3 lightPositionNormalized;
- 
-            void main(void)
-            {
-               lightPositionNormalized = normalize(lightPosition);
-               normal = ( modelview_matrix * vec4( vertex_normal, 0 ) ).xyz;
-               gl_Position = projection_matrix * modelview_matrix * vec4( vertex_position, 1 );
-            }";
-        #endregion
-
-        #region string fragmentShaderSource
-        string fragmentShaderSource = @"
-            #version 140
-
-            in vec3 lightPositionNormalized;
-            in vec3 normal;
-            out vec3 fragColor;
-
-            void main(void)
-            {
-               float lightIntensity = 0.5 * dot(lightPositionNormalized, normal) + 1;
-               fragColor = lightIntensity * vec3( 0.8, 0.5, 0.0 );
-            }";
-        #endregion
- 
-        int vertexShaderHandle,
-            fragmentShaderHandle,
-            shaderProgramHandle,
-            modelviewMatrixLocation,
-            projectionMatrixLocation,
-            lightPositionLocation,
-            indicesVboHandle,
-            VboID;
- 
+        Shader shader1;
+        int vertexShaderHandle;
+        int fragmentShaderHandle;
+        int shaderProgramHandle;
+        int modelviewMatrixLocation;
+        int projectionMatrixLocation;
+        int lightPositionLocation;
+        int indicesVboHandle;
+        int VboID;
+        uint[] indexArray;
         Matrix4 projectionMatrix, modelviewMatrix;
         Vector3 lightPosition;
-
         Vertex[] vertexArray;
-        uint[] indexArray;
 
         public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16, 0, 8), "OpenGL 3.1 Example", 0,
             DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug )
         {
-            CreateShaders(); 
-            CreateProgram();
-            GL.UseProgram( shaderProgramHandle );
- 
+            shader1 = new Shader("shader1.vert", "shader1.frag");
+            shader1.Bind();
+
             QueryMatrixLocations();
  
             float widthToHeight = ClientSize.Width / ( float )ClientSize.Height;
@@ -84,19 +41,15 @@ namespace LearnShader
             SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
             SetLightPosition( new Vector3(3.0f, 4.0f, 5.0f) );
 
-            //LoadObjData();
+            //LoadObjData(); //Load from obj file
             LoadFile("scene.gus");
-            //SaveFile();
+            //SaveFile(); //Save loaded obj data to binary ".gus" file.
             LoadVertices();
             LoadIndexer();
 
-            //Display projectionMatrix and modelViewMatrix
-            Console.WriteLine(projectionMatrix.ToString());
-            Console.WriteLine(modelviewMatrix.ToString());
-
             //See shader language version
             string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
-            Console.WriteLine("Shader Version = {0}", shaderVersion);
+            Console.WriteLine("--Shader Version = {0}", shaderVersion);
  
             // Other state
             GL.Enable( EnableCap.DepthTest );
@@ -236,138 +189,112 @@ namespace LearnShader
             #endregion
         }
 
-        private void CreateShaders()
-        {
-            vertexShaderHandle = GL.CreateShader( ShaderType.VertexShader );
-            fragmentShaderHandle = GL.CreateShader( ShaderType.FragmentShader );
- 
-            GL.ShaderSource( vertexShaderHandle, vertexShaderSource );
-            GL.ShaderSource( fragmentShaderHandle, fragmentShaderSource );
- 
-            GL.CompileShader( vertexShaderHandle );
-            GL.CompileShader( fragmentShaderHandle );
-        }
-
-        private void CreateProgram()
-        {
-            shaderProgramHandle = GL.CreateProgram();
- 
-            GL.AttachShader( shaderProgramHandle, vertexShaderHandle );
-            GL.AttachShader( shaderProgramHandle, fragmentShaderHandle );
- 
-            GL.LinkProgram( shaderProgramHandle );
- 
-            string programInfoLog;
-            GL.GetProgramInfoLog( shaderProgramHandle, out programInfoLog );
-            Debug.WriteLine( programInfoLog );
-        }
-
-         private void QueryMatrixLocations()
+        private void QueryMatrixLocations()
          {
-             projectionMatrixLocation = GL.GetUniformLocation(shaderProgramHandle, "projection_matrix");
-             modelviewMatrixLocation = GL.GetUniformLocation(shaderProgramHandle, "modelview_matrix");
-             lightPositionLocation = GL.GetUniformLocation(shaderProgramHandle, "lightPosition");
+             projectionMatrixLocation = GL.GetUniformLocation(shader1.ShaderID, "projection_matrix");
+             modelviewMatrixLocation = GL.GetUniformLocation(shader1.ShaderID, "modelview_matrix");
+             lightPositionLocation = GL.GetUniformLocation(shader1.ShaderID, "lightPosition");
          }
 
-         private void SetModelviewMatrix(Matrix4 matrix)
+        private void SetModelviewMatrix(Matrix4 matrix)
          {
              modelviewMatrix = matrix;
              GL.UniformMatrix4(modelviewMatrixLocation, false, ref modelviewMatrix);
          }
 
-         private void SetProjectionMatrix(Matrix4 matrix)
-         {
-             projectionMatrix = matrix;
-             GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
-         }
+        private void SetProjectionMatrix(Matrix4 matrix)
+        {
+            projectionMatrix = matrix;
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
+        }
 
-         private void SetLightPosition(Vector3 light)
-         {
-             lightPosition = light;
-             GL.Uniform3(lightPositionLocation, ref lightPosition);
-         }
+        private void SetLightPosition(Vector3 light)
+        {
+            lightPosition = light;
+            GL.Uniform3(lightPositionLocation, ref lightPosition);
+        }
 
-         private void LoadVertices()
-         {
-             GL.GenBuffers(1, out VboID);
-             GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
-             GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
-                 new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
-                 vertexArray, BufferUsageHint.StaticDraw);
+        private void LoadVertices()
+        {
+            GL.GenBuffers(1, out VboID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
+            GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
+                new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
+                vertexArray, BufferUsageHint.StaticDraw);
 
-             GL.EnableVertexAttribArray(0);
-             GL.BindAttribLocation(shaderProgramHandle, 0, "vertex_position");
-             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
+            GL.EnableVertexAttribArray(0);
+            GL.BindAttribLocation(shader1.ShaderID, 0, "vertex_position");
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
 
-             GL.EnableVertexAttribArray(1);
-             GL.BindAttribLocation(shaderProgramHandle, 1, "vertex_normal");
-             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
-         }
+            GL.EnableVertexAttribArray(1);
+            GL.BindAttribLocation(shader1.ShaderID, 1, "vertex_normal");
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+        }
 
-         private void LoadIndexer()
-         {
-             GL.GenBuffers(1, out indicesVboHandle);
-             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indicesVboHandle);
-             GL.BufferData<uint>(BufferTarget.ElementArrayBuffer,
-                 new IntPtr(indexArray.Length * Vector3.SizeInBytes),
-                 indexArray, BufferUsageHint.StaticDraw);
-         }
+        private void LoadIndexer()
+        {
+            GL.GenBuffers(1, out indicesVboHandle);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, indicesVboHandle);
+            GL.BufferData<uint>(BufferTarget.ElementArrayBuffer,
+                new IntPtr(indexArray.Length * Vector3.SizeInBytes),
+                indexArray, BufferUsageHint.StaticDraw);
+        }
         
-         private void SaveFile()
-         {
-             using (Stream stream = File.Open("scene.gus", FileMode.Create))
-             {
-                 BinaryFormatter bformatter = new BinaryFormatter();
+        private void SaveFile()
+        {
+            using (Stream stream = File.Open("scene.gus", FileMode.Create))
+            {
+                BinaryFormatter bformatter = new BinaryFormatter();
 
-                 Console.WriteLine("Writing Scene Information");
-                 bformatter.Serialize(stream, vertexArray);
-                 bformatter.Serialize(stream, indexArray);
-                 stream.Close();
-             }
-         }
+                Console.WriteLine("Writing Scene Information");
+                bformatter.Serialize(stream, vertexArray);
+                bformatter.Serialize(stream, indexArray);
+                stream.Close();
+            }
+        }
 
-         private void LoadFile(string filename)
-         {
-             using (Stream stream = File.Open(filename, FileMode.Open))
-             {
-                 BinaryFormatter bformatter = new BinaryFormatter();
+        private void LoadFile(string filename)
+        {
+            using (Stream stream = File.Open(filename, FileMode.Open))
+            {
+                BinaryFormatter bformatter = new BinaryFormatter();
 
-                 Console.WriteLine("Reading Scene Information from \"{0}\"", filename);
-                 vertexArray = (Vertex[])bformatter.Deserialize(stream);
-                 indexArray = (uint[])bformatter.Deserialize(stream);
-                 stream.Close();
-             }
-         }
+                Console.WriteLine("--Reading Scene Information from \"{0}\"", filename);
+                vertexArray = (Vertex[])bformatter.Deserialize(stream);
+                indexArray = (uint[])bformatter.Deserialize(stream);
+                stream.Close();
+            }
+        }
 
-         protected override void OnUpdateFrame(FrameEventArgs e)
-         {
-             SetModelviewMatrix(Matrix4.RotateY((float)e.Time/2) * modelviewMatrix);
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            SetModelviewMatrix(Matrix4.RotateY((float)e.Time/2) * modelviewMatrix);
 
-             if (Keyboard[OpenTK.Input.Key.Escape])
-             {
-                 //SaveFile();
-                 Exit();
-             }
-         }
+            if (Keyboard[OpenTK.Input.Key.Escape])
+            {
+                //SaveFile();
+                Exit();
+            }
+        }
 
-         protected override void OnRenderFrame(FrameEventArgs e)
-         {
-             GL.Viewport(0, 0, Width, Height);
-             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            GL.Viewport(0, 0, Width, Height);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
-                 DrawElementsType.UnsignedInt, IntPtr.Zero);
+            GL.DrawElements(BeginMode.Triangles, indexArray.Length,
+                DrawElementsType.UnsignedInt, IntPtr.Zero);
 
-             GL.Flush();
-             SwapBuffers();
-         }
+            GL.Flush();
+            SwapBuffers();
+        }
 
-         protected override void OnResize(EventArgs e)
-         {
-             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-             SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 150));
-         }
-    }
+        protected override void OnResize(EventArgs e)
+        {
+            float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
+            SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 150));
+        }
+}
 
     public class Program
     {
