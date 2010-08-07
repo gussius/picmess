@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System.Runtime.Serialization;
 
 namespace LearnShader
@@ -52,8 +54,7 @@ namespace LearnShader
             info.AddValue("normal", normal);
         }
     }
-
-
+    
     class VNPair
     {
         private int position;
@@ -123,4 +124,90 @@ namespace LearnShader
             set { normal = value; }
         }
     }
+
+    class Shader
+	{
+		private int shaderID;
+		private int vertexShader;
+		private int fragmentShader;
+
+		public int ShaderID
+		{
+            get { return shaderID; }
+		}
+
+		public Shader(string vsFileName, string fsFileName)
+		{
+			vertexShader = GL.CreateShader(ShaderType.VertexShader);
+			fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+
+			string vsString = File.ReadAllText(vsFileName);
+            GL.ShaderSource(vertexShader, vsString);
+            
+            string fsString = @File.ReadAllText( fsFileName );
+			GL.ShaderSource(fragmentShader, fsString);
+
+            GL.CompileShader(vertexShader);
+            ValidateShader(vertexShader, vsFileName);
+            GL.CompileShader(fragmentShader);
+            ValidateShader(fragmentShader, fsFileName);
+
+            shaderID = GL.CreateProgram();
+			GL.AttachShader(shaderID, vertexShader);
+			GL.AttachShader(shaderID, fragmentShader);
+			GL.LinkProgram(shaderID);
+			ValidateProgram(shaderID);
+
+			// TO DO: Check if program compiled correctly and output error message if need be.
+            string programInfo;
+            GL.GetProgramInfoLog(shaderID, out programInfo);
+            Console.WriteLine("programInfo = {0}", programInfo);
+		}
+
+		~Shader()
+		{
+			GL.DetachShader(shaderID, fragmentShader);
+			GL.DetachShader(shaderID, vertexShader);
+
+			GL.DeleteShader(fragmentShader);
+			GL.DeleteShader(vertexShader);
+			GL.DeleteProgram(shaderID);
+		}
+		
+		
+		public void Bind()
+		{
+			GL.UseProgram(shaderID);
+		}
+
+		public void UnBind()
+		{
+			GL.UseProgram(0);
+		}
+
+		static void ValidateShader(int shader, string fileName)
+		{
+			string outputBuffer = string.Empty;
+			outputBuffer = GL.GetShaderInfoLog(shader);
+
+			if (outputBuffer != string.Empty)
+				Console.Write("Shader {0}, file {1} compile error: {2}\n", shader, fileName, outputBuffer);
+		}
+
+		static void ValidateProgram(int program)
+		{
+			string outputBuffer = string.Empty;
+			outputBuffer = GL.GetProgramInfoLog(program);
+
+			if (outputBuffer != string.Empty)
+				Console.Write("Program {0} linking error: {1}\n", program, outputBuffer);
+
+			GL.ValidateProgram(program);
+			int status;
+			GL.GetProgram(program, ProgramParameter.ValidateStatus, out status);
+
+			if (status < 1)
+				Console.WriteLine("Error validating shader");
+		}
+	}
 }
