@@ -79,13 +79,13 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ObjSerial.cs" />
+    <Compile Include="Geometry.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="VNPairs.cs" />
+    <Compile Include="Shader.cs" />
     <Compile Include="ShaderExample.cs" />
   </ItemGroup>
   <ItemGroup>
