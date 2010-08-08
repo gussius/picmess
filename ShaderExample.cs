@@ -15,9 +15,6 @@ namespace LearnShader
     public class HelloGL3: GameWindow
     {
         Shader shader1;
-        int vertexShaderHandle;
-        int fragmentShaderHandle;
-        int shaderProgramHandle;
         int modelviewMatrixLocation;
         int projectionMatrixLocation;
         int lightPositionLocation;
@@ -37,8 +34,8 @@ namespace LearnShader
             QueryMatrixLocations();
  
             float widthToHeight = ClientSize.Width / ( float )ClientSize.Height;
-            SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 30));
-            SetModelviewMatrix( Matrix4.RotateX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
+            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 30));
+            SetModelviewMatrix( Matrix4.CreateRotationX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
             SetLightPosition( new Vector3(3.0f, 4.0f, 5.0f) );
 
             //LoadObjData(); //Load from obj file
@@ -47,13 +44,11 @@ namespace LearnShader
             LoadVertices();
             LoadIndexer();
 
-            //See shader language version
             string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
             Console.WriteLine("--Shader Version = {0}", shaderVersion);
- 
-            // Other state
+
             GL.Enable( EnableCap.DepthTest );
-            GL.ClearColor( 0, 0.1f, 0.4f, 1 );
+            GL.ClearColor( 0.2f, 0.2f, 0.2f, 1 );
         }
 
         private void LoadObjData()
