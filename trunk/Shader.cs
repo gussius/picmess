@@ -7,8 +7,8 @@ namespace LearnShader
 {
     class Shader
 	{
-        //TODO: Need to work in sone error control here.
-
+        /*TODO: Need to work in sone error control here.
+         */
 		private int shaderID;
 		private int vertexShader;
 		private int fragmentShader;
@@ -20,6 +20,9 @@ namespace LearnShader
 
 		public Shader(string vsFileName, string fsFileName)
 		{
+            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            Console.WriteLine("--Shader Version = {0}", shaderVersion);
+
 			vertexShader = GL.CreateShader(ShaderType.VertexShader);
 			fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
 
