@@ -3,24 +3,233 @@ using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 
 namespace LearnShader
 {
     class Mesh
     {
-        UInt32[] indexBuffer;
-        Vertex[] vertexArray;
+        private uint[] indexArray;
+        private Vertex[] vertexArray;
+        private int VboID;
+        private int indicesVboHandle;
+        private static bool drawn = false;
 
+        public Mesh(string fileName)
+        {
+            LoadObjFile(fileName);
+            LoadVertices();
+            LoadIndexer();
+        }
 
+        public void LoadVertices()
+        {
+            GL.GenBuffers(1, out VboID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
+            GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
+                new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
+                vertexArray, BufferUsageHint.StaticDraw);
+        }
+
+        private void LoadIndexer()
+        {
+            GL.GenBuffers(1, out indicesVboHandle);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, indicesVboHandle);
+            GL.BufferData<uint>(BufferTarget.ElementArrayBuffer,
+                new IntPtr(indexArray.Length * Vector3.SizeInBytes),
+                indexArray, BufferUsageHint.StaticDraw);
+        }
+
+        public void Draw()
+        {
+            GL.DrawElements(BeginMode.Triangles, indexArray.Length,
+                            DrawElementsType.UnsignedInt, IntPtr.Zero);
+            if (!drawn)
+            {
+                Console.WriteLine("--Mesh Being Drawn");
+                drawn = true;
+            }
+        }
+
+        public void LoadObjFile(string objFileName)
+        {
+            int v, vn, vt, f;
+            VNPair[] objIndexBuffer;
+            int[] indexBuffer;
+            VNPair[] vertexBuffer;
+            Vector3[] objVertexBuffer;
+            Vector3[] objNormalBuffer;
+
+            Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
+            Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
+
+            using (StreamReader tr = new StreamReader(objFileName))
+            {
+                Console.WriteLine("--Loading {0}", objFileName);
+
+                // initialise the array counters
+                v = 0; vn = 0; vt = 0; f = 0;
+
+                string line;
+                Match vertexMatch, faceMatch;
+
+                #region First pass for counting lines to ascertain array lengths
+                while (tr.Peek() > -1)
+                {
+                    line = tr.ReadLine();
+
+                    if (line.StartsWith("vn"))
+                        vn++;
+                    else if (line.StartsWith("vt"))
+                        vt++;
+                    else if (line.StartsWith("v"))
+                        v++;
+                    else if (line.StartsWith("f"))
+                        f++;
+                }
+                #endregion
+
+                objVertexBuffer = new Vector3[v];
+                vertexBuffer = new VNPair[f * 3];
+                indexBuffer = new int[f * 3];
+                objNormalBuffer = new Vector3[vn];
+                objIndexBuffer = new VNPair[f * 3];
+
+                // Reset filestream back to zero
+                tr.BaseStream.Seek(0, SeekOrigin.Begin);
+                tr.DiscardBufferedData();
+
+                int vCount = 0;
+                int vnCount = 0;
+                int fnCount = 0;
+                float x, y, z;
+
+                #region Second pass for loading data into arrays
+                while (tr.Peek() > -1)
+                {
+                    line = tr.ReadLine();
+                    vertexMatch = vertexRegex.Match(line);
+                    faceMatch = facesRegex.Match(line);
+
+                    if (vertexMatch.Success)
+                    {
+                        x = (float)Convert.ToDecimal(vertexMatch.Groups["xcoord"].Value);
+                        y = (float)Convert.ToDecimal(vertexMatch.Groups["ycoord"].Value);
+                        z = (float)Convert.ToDecimal(vertexMatch.Groups["zcoord"].Value);
+
+                        if (line.StartsWith("vn"))
+                            objNormalBuffer[vnCount++] = new Vector3(x, y, z);
+
+                        else if (line.StartsWith("v") && !line.StartsWith("vt"))
+                            objVertexBuffer[vCount++] = new Vector3(x, y, z);
+                    }
+
+                    if (faceMatch.Success)
+                    {
+                        if (line.StartsWith("f"))
+                        {
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["a"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["d"].Value) - 1);
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["b"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["e"].Value) - 1);
+                            objIndexBuffer[fnCount++] = new VNPair(Convert.ToInt16(faceMatch.Groups["c"].Value) - 1,
+                                                                   Convert.ToInt16(faceMatch.Groups["f"].Value) - 1);
+                        }
+                    }
+                }
+                #endregion
+
+                tr.Close();
+            }
+
+            int vPair = 0;
+            int iCounter = 0;
+
+            #region Now process arrays to sort and duplicate vertices with multiple normals
+
+            foreach (VNPair index in objIndexBuffer)
+            {
+                for (int i = 0; i <= vPair; i++)
+                {
+
+                    if (vertexBuffer[i] == index)
+                    {
+                        indexBuffer[iCounter++] = i;
+                        break;
+                    }
+                    else
+                    {
+                        if (i == vPair)
+                        {
+                            indexBuffer[iCounter++] = i;
+                            vertexBuffer[vPair++] = index;
+                            break;
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region Populate vertex array...
+
+            vertexArray = new Vertex[vPair];
+            indexArray = new uint[iCounter];
+
+            for (int i = 0; i < vPair; i++)
+            {
+                vertexArray[i].Position = objVertexBuffer[vertexBuffer[i].P];
+                vertexArray[i].Normal = objNormalBuffer[vertexBuffer[i].N];
+            }
+
+            for (int i = 0; i < iCounter; i++)
+            {
+                indexArray[i] = (uint)indexBuffer[i];
+            }
+            #endregion
+        }
+
+        //Could write a 'LoadMaxFile(...)' here to handle 3dsMax file meshes.
     }
 
     class Cube
     {
-        float width, height, depth;
-        Vector3 color;
-        Mesh cubeMesh;
+        private Vector3 color;
+        private Vector3 position;
+        private Mesh cubeMesh;
+        private Shader cubeShader;
 
+        public Cube(Vector3 position, Vector3 color)
+        {
+            this.position = position;
+            this.color = color;
+            cubeShader = new Shader("cluster.vert", "cluster.frag");
+            cubeMesh = new Mesh(@"C:\Temp\cluster.obj");
 
+            GL.EnableVertexAttribArray(0);
+            GL.BindAttribLocation(cubeShader.ShaderID, 0, "vertex_position");
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
+
+            GL.EnableVertexAttribArray(1);
+            GL.BindAttribLocation(cubeShader.ShaderID, 1, "vertex_normal");
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+        }
+
+        public Vector3 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
+
+        public int ShaderID
+        {
+            get { return cubeShader.ShaderID; }
+        }
+
+        public void Draw()
+        {
+            cubeShader.Bind();
+            cubeMesh.Draw();
+        }
     }
 
     [Serializable]

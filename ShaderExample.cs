@@ -14,6 +14,7 @@ namespace LearnShader
 {
     public class HelloGL3: GameWindow
     {
+        //Cube testCube;
         Shader shader1;
         int modelviewMatrixLocation;
         int projectionMatrixLocation;
@@ -28,7 +29,8 @@ namespace LearnShader
         public HelloGL3() : base( 640, 480, new GraphicsMode( new ColorFormat( 8, 8, 8, 8 ), 16, 0, 8), "OpenGL 3.1 Example", 0,
             DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug )
         {
-            shader1 = new Shader("shader1.vert", "shader1.frag");
+            //testCube = new Cube(new Vector3(0, 0, 0), new Vector3(0.8f, 0.5f, 0.0f));
+            shader1 = new Shader("cluster.vert", "cluster.frag");
             shader1.Bind();
 
             QueryMatrixLocations();
@@ -38,14 +40,13 @@ namespace LearnShader
             SetModelviewMatrix( Matrix4.CreateRotationX( 0.5f ) * Matrix4.CreateTranslation( 0, -8, -100 ) );
             SetLightPosition( new Vector3(3.0f, 4.0f, 5.0f) );
 
-            //LoadObjData(); //Load from obj file
-            LoadFile("scene.gus");
+            LoadObjData(); //Load from obj file
+            //LoadFile("scene.gus");
             //SaveFile(); //Save loaded obj data to binary ".gus" file.
             LoadVertices();
-            LoadIndexer();
+            //LoadIndexer();
 
-            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
-            Console.WriteLine("--Shader Version = {0}", shaderVersion);
+            
 
             GL.Enable( EnableCap.DepthTest );
             GL.ClearColor( 0.2f, 0.2f, 0.2f, 1 );
@@ -59,11 +60,14 @@ namespace LearnShader
             VNPair[] vertexBuffer;
             Vector3[] objVertexBuffer;
             Vector3[] objNormalBuffer;
+            string fileName = @"c:\temp\cluster.obj";
 
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader("c:\\temp\\cluster.obj"))
+            Console.WriteLine("--Loading {0}", fileName);
+
+            using (StreamReader tr = new StreamReader(fileName))
             {
                 // initialise the array counters
                 v = 0; vn = 0; vt = 0; f = 0;
@@ -217,6 +221,8 @@ namespace LearnShader
                 new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
                 vertexArray, BufferUsageHint.StaticDraw);
 
+            LoadIndexer();
+
             GL.EnableVertexAttribArray(0);
             GL.BindAttribLocation(shader1.ShaderID, 0, "vertex_position");
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
@@ -234,7 +240,7 @@ namespace LearnShader
                 new IntPtr(indexArray.Length * Vector3.SizeInBytes),
                 indexArray, BufferUsageHint.StaticDraw);
         }
-        
+/*        
         private void SaveFile()
         {
             using (Stream stream = File.Open("scene.gus", FileMode.Create))
@@ -260,10 +266,10 @@ namespace LearnShader
                 stream.Close();
             }
         }
-
+        */
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            SetModelviewMatrix(Matrix4.RotateY((float)e.Time/2) * modelviewMatrix);
+            SetModelviewMatrix(Matrix4.CreateRotationY((float)e.Time/2) * modelviewMatrix);
 
             if (Keyboard[OpenTK.Input.Key.Escape])
             {
@@ -280,6 +286,8 @@ namespace LearnShader
             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
                 DrawElementsType.UnsignedInt, IntPtr.Zero);
 
+            //testCube.Draw();
+
             GL.Flush();
             SwapBuffers();
         }
@@ -287,7 +295,7 @@ namespace LearnShader
         protected override void OnResize(EventArgs e)
         {
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-            SetProjectionMatrix(Matrix4.Perspective(0.5f, widthToHeight, 1, 150));
+            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
         }
 }
 
