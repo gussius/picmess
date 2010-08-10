@@ -42,6 +42,10 @@ namespace LearnShader
 
         public void Draw()
         {
+            //GL.PushMatrix();
+            //GL.MatrixMode(MatrixMode.Modelview);
+            //Matrix4.CreateTranslation(3, 3, 3);
+            //GL.Translate(3, 3, 3)
             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
                             DrawElementsType.UnsignedInt, IntPtr.Zero);
             if (!drawn)
@@ -197,13 +201,19 @@ namespace LearnShader
         private Vector3 position;
         private Mesh cubeMesh;
         private Shader cubeShader;
+        private string sourceFile;
+        private int surfaceColorLocation;
 
         public Cube(Vector3 position, Vector3 color)
         {
+            Vector3 surfaceColor;
+
             this.position = position;
             this.color = color;
-            cubeShader = new Shader("cluster.vert", "cluster.frag");
-            cubeMesh = new Mesh(@"C:\Temp\cluster.obj");
+            sourceFile = @"C:\Temp\cube.obj";
+            cubeShader = new Shader("cube.vert", "cube.frag");
+            cubeShader.Bind();
+            cubeMesh = new Mesh(sourceFile);
 
             GL.EnableVertexAttribArray(0);
             GL.BindAttribLocation(cubeShader.ShaderID, 0, "vertex_position");
@@ -212,6 +222,10 @@ namespace LearnShader
             GL.EnableVertexAttribArray(1);
             GL.BindAttribLocation(cubeShader.ShaderID, 1, "vertex_normal");
             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
+
+            surfaceColorLocation = GL.GetUniformLocation(cubeShader.ShaderID, "surfaceColor");
+            surfaceColor = color;
+            GL.Uniform3(surfaceColorLocation, ref surfaceColor);
         }
 
         public Vector3 Position
@@ -227,7 +241,6 @@ namespace LearnShader
 
         public void Draw()
         {
-            cubeShader.Bind();
             cubeMesh.Draw();
         }
     }
