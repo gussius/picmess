@@ -42,10 +42,6 @@ namespace LearnShader
 
         public void Draw()
         {
-            //GL.PushMatrix();
-            //GL.MatrixMode(MatrixMode.Modelview);
-            //Matrix4.CreateTranslation(3, 3, 3);
-            //GL.Translate(3, 3, 3)
             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
                             DrawElementsType.UnsignedInt, IntPtr.Zero);
             if (!drawn)
@@ -199,17 +195,22 @@ namespace LearnShader
     {
         private Vector3 color;
         private Vector3 position;
+        private Vector3 rotation;
         private Mesh cubeMesh;
         private Shader cubeShader;
         private string sourceFile;
         private int surfaceColorLocation;
+        Matrix4 modelviewMatrix;
+        int modelviewMatrixLocation;
 
-        public Cube(Vector3 position, Vector3 color)
+        public Cube(Vector3 position, Vector3 rotation, Vector3 color)
         {
             Vector3 surfaceColor;
 
             this.position = position;
+            this.rotation = rotation;
             this.color = color;
+
             sourceFile = @"C:\Temp\cube.obj";
             cubeShader = new Shader("cube.vert", "cube.frag");
             cubeShader.Bind();
@@ -226,12 +227,20 @@ namespace LearnShader
             surfaceColorLocation = GL.GetUniformLocation(cubeShader.ShaderID, "surfaceColor");
             surfaceColor = color;
             GL.Uniform3(surfaceColorLocation, ref surfaceColor);
+
+            modelviewMatrixLocation = GL.GetUniformLocation(cubeShader.ShaderID, "modelview_matrix");
         }
 
         public Vector3 Position
         {
             get { return position; }
             set { position = value; }
+        }
+
+        public Vector3 Rotation
+        {
+            get { return rotation; }
+            set { rotation = value; }
         }
 
         public int ShaderID
@@ -241,6 +250,11 @@ namespace LearnShader
 
         public void Draw()
         {
+            modelviewMatrix = Matrix4.CreateRotationX(rotation.X) *
+                              Matrix4.CreateRotationY(rotation.Y) *
+                              Matrix4.CreateRotationZ(rotation.Z) *
+                              Matrix4.CreateTranslation(position);
+            GL.UniformMatrix4(modelviewMatrixLocation, false, ref modelviewMatrix);
             cubeMesh.Draw();
         }
     }
