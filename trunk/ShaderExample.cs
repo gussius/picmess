@@ -40,10 +40,7 @@ namespace LearnShader
 
             for (int i = 0; i < 100; i++)
             {
-                randomVector = new Vector3(randomNumber.Next(-5, 5),
-                                        randomNumber.Next(-5, 5),
-                                        randomNumber.Next(-120, -10));
-                Console.WriteLine(randomVector.ToString());
+                randomVector = new Vector3(randomNumber.Next(-5, 5), randomNumber.Next(-5, 5), randomNumber.Next(-120, -10));
                 randomRotation = new Vector3(randomNumber.Next(0, 314)/100, randomNumber.Next(0, 314)/100, 0);
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Vector3(0.4f, 0.5f, 0.0f));
             }
