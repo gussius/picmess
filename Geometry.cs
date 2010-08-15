@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.Serialization;
@@ -14,9 +15,19 @@ namespace LearnShader
         private int VboID;
         private int indicesVboHandle;
         private static bool drawn = false;
+        private static Dictionary<string, Mesh> meshRegister = new Dictionary<string, Mesh>();
 
-        public Mesh(string fileName)
+        public static Mesh CreateMesh(string fileName, string meshName)
         {
+            if (meshRegister.ContainsKey(meshName))
+                return meshRegister[meshName];
+
+            return new Mesh(fileName, meshName);
+        }
+
+        private Mesh(string fileName, string meshName)
+        {
+            meshRegister.Add(meshName, this);
             LoadObjFile(fileName);
             LoadVertices();
             LoadIndexer();
@@ -202,6 +213,7 @@ namespace LearnShader
         private int surfaceColorLocation;
         Matrix4 modelviewMatrix;
         int modelviewMatrixLocation;
+        private string name = "cube";
 
         public Cube(Vector3 position, Vector3 rotation, Vector3 color)
         {
@@ -212,9 +224,9 @@ namespace LearnShader
             this.color = color;
 
             sourceFile = @"C:\Temp\cube.obj";
-            cubeShader = new Shader("cube.vert", "cube.frag");
+            cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
             cubeShader.Bind();
-            cubeMesh = new Mesh(sourceFile);
+            cubeMesh = Mesh.CreateMesh(sourceFile, name);
 
             GL.EnableVertexAttribArray(0);
             GL.BindAttribLocation(cubeShader.ShaderID, 0, "vertex_position");

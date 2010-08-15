@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -12,14 +13,26 @@ namespace LearnShader
         private int shaderID;
         private int vertexShader;
         private int fragmentShader;
+        //This dictionary keeps track of all Shaders created, so that duplicates can be avoided. (Note it is static)
+        private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
 
         public int ShaderID
         {
             get { return shaderID; }
         }
 
-        public Shader(string vsFileName, string fsFileName)
+        public static Shader CreateShader(string vsFileName, string fsFileName, string shaderName)
         {
+            if (shaderRegister.ContainsKey(shaderName))
+                return shaderRegister[shaderName];
+
+            return new Shader(vsFileName, fsFileName, shaderName);
+        }
+
+        private Shader(string vsFileName, string fsFileName, string shaderName)
+        {
+            shaderRegister.Add(shaderName, this);
+
             string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
             Console.WriteLine("--Shader Version = {0}", shaderVersion);
 
