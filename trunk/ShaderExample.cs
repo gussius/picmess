@@ -25,9 +25,9 @@ namespace LearnShader
             : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 8), "OpenGL 3.1 Example", 0,
                 DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
         {
-            cube = new Cube(new Vector3(0, 0, -20), new Vector3(0.0f, 0.0f, 0.25f*3.14f), new Vector3(0.4f, 0.5f, 0.0f));
+            cube = new Cube(new Vector3(0, 0, -20), new Vector3(0.0f, 0.0f, 0.25f*3.14f), new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             randomNumber = new Random();
-            cubeArray = new Cube[100];
+            cubeArray = new Cube[25];
 
             QueryMatrixLocations();
 
@@ -38,12 +38,17 @@ namespace LearnShader
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
 
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 25; i++)
             {
                 randomVector = new Vector3(randomNumber.Next(-5, 5), randomNumber.Next(-5, 5), randomNumber.Next(-120, -10));
                 randomRotation = new Vector3(randomNumber.Next(0, 314)/100, randomNumber.Next(0, 314)/100, 0);
-                cubeArray[i] = new Cube(randomVector, randomRotation, new Vector3(0.4f, 0.5f, 0.0f));
+                cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
+
+            // Quick test to see if picked cube can be referenced as intended
+            Cube pickedCube = PickRegister.Instance.LookupCube(cubeArray[0].Id);
+            pickedCube.Color = new Color4(0.4f, 0.5f, 0.5f, 1.0f);
+            Console.WriteLine("\n-- Cube #{0} has changed to color, {1}", pickedCube.Id, pickedCube.Color.ToString());
         }
 
         private void QueryMatrixLocations()
@@ -94,8 +99,6 @@ namespace LearnShader
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            cube.Rotation = cube.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
-            
             foreach (Cube sample in cubeArray)
             {
                 sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
@@ -112,7 +115,6 @@ namespace LearnShader
             GL.Viewport(0, 0, Width, Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            cube.Draw();
             foreach (Cube sample in cubeArray)
             {
                 sample.Draw();

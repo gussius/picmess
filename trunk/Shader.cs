@@ -6,15 +6,15 @@ using OpenTK.Graphics.OpenGL;
 
 namespace LearnShader
 {
-    class Shader
+    public sealed class Shader
     {
-        /*TODO: Need to work in sone error control here.
-         */
         private int shaderID;
         private int vertexShader;
         private int fragmentShader;
+
         //This dictionary keeps track of all Shaders created, so that duplicates can be avoided. (Note it is static)
         private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
+
 
         public int ShaderID
         {
