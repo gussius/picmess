@@ -3,11 +3,46 @@ using System.IO;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Graphics;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 namespace LearnShader
 {
+    public sealed class PickRegister
+    {
+        private static readonly PickRegister instance = new PickRegister();
+        private Dictionary<int, Cube> register = new Dictionary<int, Cube>();
+        private static int nextId = 0;
+
+        public int GetId(Cube cubeRef)
+        {
+            nextId = nextId + 1000;
+            register.Add(nextId, cubeRef);
+
+            return nextId;
+        }
+
+        public void Remove(int key)
+        {
+            register.Remove(key);
+        }
+
+        public Cube LookupCube(int id)
+        {
+            return register[id];
+        }
+
+        private PickRegister()
+        {
+        }
+
+        public static PickRegister Instance
+        {
+            get { return instance; }
+        }
+    }
+
     class Mesh
     {
         private uint[] indexArray;
@@ -202,9 +237,9 @@ namespace LearnShader
         //Could write a 'LoadMaxFile(...)' here to handle 3dsMax file meshes.
     }
 
-    class Cube
+    public class Cube
     {
-        private Vector3 color;
+        private Color4 color;
         private Vector3 position;
         private Vector3 rotation;
         private Mesh cubeMesh;
@@ -214,14 +249,17 @@ namespace LearnShader
         Matrix4 modelviewMatrix;
         int modelviewMatrixLocation;
         private string name = "cube";
+        PickRegister register;
+        private int id;
 
-        public Cube(Vector3 position, Vector3 rotation, Vector3 color)
+        public Cube(Vector3 position, Vector3 rotation, Color4 color)
         {
-            Vector3 surfaceColor;
-
             this.position = position;
             this.rotation = rotation;
             this.color = color;
+
+            register = PickRegister.Instance;
+            id = register.GetId(this);
 
             sourceFile = @"C:\Temp\cube.obj";
             cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
@@ -237,9 +275,6 @@ namespace LearnShader
             GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, Vector3.SizeInBytes);
 
             surfaceColorLocation = GL.GetUniformLocation(cubeShader.ShaderID, "surfaceColor");
-            surfaceColor = color;
-            GL.Uniform3(surfaceColorLocation, ref surfaceColor);
-
             modelviewMatrixLocation = GL.GetUniformLocation(cubeShader.ShaderID, "modelview_matrix");
         }
 
@@ -255,9 +290,20 @@ namespace LearnShader
             set { rotation = value; }
         }
 
+        public Color4 Color
+        {
+            get { return color; }
+            set { color = value; }
+        }
+
         public int ShaderID
         {
             get { return cubeShader.ShaderID; }
+        }
+
+        public int Id
+        {
+            get { return id; }
         }
 
         public void Draw()
@@ -267,6 +313,11 @@ namespace LearnShader
                               Matrix4.CreateRotationZ(rotation.Z) *
                               Matrix4.CreateTranslation(position);
             GL.UniformMatrix4(modelviewMatrixLocation, false, ref modelviewMatrix);
+
+            //Must be a better way than this. Find out how to load a Color value onto Shader...GL.Uniform4 ??...
+            Vector3 tempColor = new Vector3(color.R, color.G, color.B);
+            GL.Uniform3(surfaceColorLocation, tempColor);
+
             cubeMesh.Draw();
         }
     }
