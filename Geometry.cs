@@ -313,11 +313,7 @@ namespace LearnShader
                               Matrix4.CreateRotationZ(rotation.Z) *
                               Matrix4.CreateTranslation(position);
             GL.UniformMatrix4(modelviewMatrixLocation, false, ref modelviewMatrix);
-
-            //Must be a better way than this. Find out how to load a Color value onto Shader...GL.Uniform4 ??...
-            Vector3 tempColor = new Vector3(color.R, color.G, color.B);
-            GL.Uniform3(surfaceColorLocation, tempColor);
-
+            GL.Uniform4(surfaceColorLocation, color);
             cubeMesh.Draw();
         }
     }
