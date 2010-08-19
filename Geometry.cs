@@ -13,11 +13,11 @@ namespace LearnShader
     {
         private static readonly PickRegister instance = new PickRegister();
         private Dictionary<int, Cube> register = new Dictionary<int, Cube>();
-        private static int nextId = 0;
+        private static int nextId = 8000000;
 
         public int GetId(Cube cubeRef)
         {
-            nextId = nextId + 1000;
+            nextId = nextId + 100000;
             register.Add(nextId, cubeRef);
 
             return nextId;
@@ -256,10 +256,12 @@ namespace LearnShader
         {
             this.position = position;
             this.rotation = rotation;
-            this.color = color;
+            //this.color = color;
 
             register = PickRegister.Instance;
             id = register.GetId(this);
+
+            this.color = new Color4((byte)(id >> 24), (byte)(id >> 16), (byte)(id >> 8), (byte)id);
 
             sourceFile = @"C:\Temp\cube.obj";
             cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
