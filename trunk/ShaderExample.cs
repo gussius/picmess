@@ -45,11 +45,6 @@ namespace LearnShader
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
 
-            // Quick test to see if picked cube can be referenced as intended
-            Cube pickedCube = PickRegister.Instance.LookupCube(cubeArray[0].Id);
-            pickedCube.Color = new Color4(0.4f, 0.5f, 0.7f, 1.0f);
-            Console.WriteLine("\n-- Cube #{0} has changed to color, {1}", pickedCube.Id, pickedCube.Color.ToString());
-            Console.WriteLine("-- The color of Cube #{0} can be expressed by the integer {1} \n   by using ToArgb()", pickedCube.Id, pickedCube.Color.ToArgb());
         }
 
         private void QueryMatrixLocations()
