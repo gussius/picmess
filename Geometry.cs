@@ -30,7 +30,19 @@ namespace LearnShader
 
         public Cube LookupCube(int id)
         {
-            return register[id];
+            if (register.ContainsKey(id))
+            {
+                
+                return register[id];
+            }
+            Console.WriteLine(".. id = {0}", id);
+
+            foreach (int member in register.Keys)
+            {
+                Console.Write("{0}, ", register[member].Id);
+            }
+
+            return null;
         }
 
         private PickRegister()
@@ -374,10 +386,10 @@ namespace LearnShader
         private int position;
         private int normal;
 
-        public VNPair(int pos_ref, int norm_ref)
+        public VNPair(int position, int normal)
         {
-            this.position = pos_ref;
-            this.normal = norm_ref;
+            this.position = position;
+            this.normal = normal;
         }
 
         public VNPair()
@@ -439,4 +451,14 @@ namespace LearnShader
         }
     }
 
+    struct Rgba
+    {
+        public byte R, G, B, A;
+
+        public override string ToString()
+        {
+            string result = "{ R, G, B, A } = { " + R + ", " + G + ", " + B + ", " + A + " }";
+            return result;
+        }
+    }
 }
