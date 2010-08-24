@@ -23,7 +23,7 @@ namespace LearnShader
         Vector3 randomRotation;
 
         public Game()
-            : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 0), "OpenGL 3.1 Example", 0,
+            : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 8), "OpenGL 3.1 Example", 0,
                 DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
         {
             cube = new Cube(new Vector3(0, 0, -20), new Vector3(0.0f, 0.0f, 0.25f*3.14f), new Color4(0.4f, 0.5f, 0.0f, 1.0f));
@@ -47,19 +47,18 @@ namespace LearnShader
                 randomRotation = new Vector3(randomNumber.Next(0, 314)/100, randomNumber.Next(0, 314)/100, 0);
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
-
-            
-
         }
 
-        void MouseButtonDown(object sender, MouseEventArgs e)
+        public void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Rgba pixel = new Rgba();
-            GL.ReadPixels(e.X, 480 - e.Y, 1, 1, PixelFormat.Rgba, PixelType.Byte, ref pixel);
-            Color4 mycolor = new Color4(pixel.R, pixel.G, pixel.B, pixel.A);
-            Console.WriteLine("-- mycolor = {0}", mycolor.ToString());
-            Console.WriteLine("-- pixel.R, pixel.G, pixel.B, pixel.A = {0}, {1}, {2}, {3}", pixel.R, pixel.G, pixel.B, pixel.A);
-            Console.WriteLine("-- Picked color = {0}", PickRegister.Instance.LookupCube(mycolor.ToArgb()));
+            Byte4 pixel = new Byte4();
+            GL.ReadPixels(e.X, this.Height - e.Y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
+            Cube cubeRef;
+            if ((cubeRef = PickRegister.Instance.LookupCube((int)pixel.ToUInt32())) != null)
+            {
+                PickRegister.Instance.LookupCube((int)pixel.ToUInt32()).Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
+                Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
+            }
         }
 
         private void QueryMatrixLocations()

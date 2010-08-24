@@ -1,0 +1,284 @@
+<Project>
+  <Name>ShaderExample</Name>
+  <ProjectItem type="NClass.DiagramEditor.ClassDiagram.Diagram" assembly="NClass.DiagramEditor, Version=2.3.1512.0, Culture=neutral, PublicKeyToken=null">
+    <Name>Current Architecture</Name>
+    <Language>CSharp</Language>
+    <Entities>
+      <Entity type="Class">
+        <Name>VNPair</Name>
+        <Access>Public</Access>
+        <Location left="1178" top="667" />
+        <Size width="311" height="274" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private int position</Member>
+        <Member type="Field">private int normal</Member>
+        <Member type="Constructor">public VNPair(int position, int normal)</Member>
+        <Member type="Constructor">public VNPair()</Member>
+        <Member type="Property">public int P { get; set; }</Member>
+        <Member type="Property">public int N { get; set; }</Member>
+        <Member type="Method">public static bool operator ==(VNPair pair1, VNPair pair2)</Member>
+        <Member type="Method">public static bool operator !=(VNPair pair1, VNPair pair2)</Member>
+        <Member type="Method">public override string ToString()</Member>
+        <Member type="Method">public override bool Equals(object obj)</Member>
+        <Member type="Method">public override int GetHashCode()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Cube</Name>
+        <Access>Public</Access>
+        <Location left="356" top="199" />
+        <Size width="348" height="404" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private string name</Member>
+        <Member type="Field">private Color4 color</Member>
+        <Member type="Field">private Vector3 position</Member>
+        <Member type="Field">private Vector3 rotation</Member>
+        <Member type="Field">private int id</Member>
+        <Member type="Field">private string sourceFile</Member>
+        <Member type="Field">private Mesh cubeMesh</Member>
+        <Member type="Field">private Shader cubeShader</Member>
+        <Member type="Field">private PickRegister register</Member>
+        <Member type="Field">private int surfaceColorLocation</Member>
+        <Member type="Field">private Matrix4 modelviewMatrix</Member>
+        <Member type="Field">private int modelviewMatrixLocation</Member>
+        <Member type="Constructor">public Cube(Vector3 position, Vector3 rotation, Color4 color)</Member>
+        <Member type="Property">public Vector3 Position { get; set; }</Member>
+        <Member type="Property">public Vector3 Rotation { get; set; }</Member>
+        <Member type="Property">public Color4 Color { get; set; }</Member>
+        <Member type="Property">public int ShaderID { get; set; }</Member>
+        <Member type="Property">public int Id { get; set; }</Member>
+        <Member type="Method">public void Draw()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>EntryPoint</Name>
+        <Access>Public</Access>
+        <Location left="356" top="39" />
+        <Size width="266" height="110" />
+        <Collapsed>False</Collapsed>
+        <Member type="Method">public void Main()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Game</Name>
+        <Access>Public</Access>
+        <Location left="46" top="645" />
+        <Size width="401" height="366" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">Cube cube</Member>
+        <Member type="Field">public int projectionMatrixLocation</Member>
+        <Member type="Field">int lightPositionLocation</Member>
+        <Member type="Field">Matrix4 projectionMatrix</Member>
+        <Member type="Field">Vector3 lightPosition</Member>
+        <Member type="Field">Cube[] cubeArray</Member>
+        <Member type="Field">Random randomNumber</Member>
+        <Member type="Field">Vector3 randomVector</Member>
+        <Member type="Field">Vector3 randomRotation</Member>
+        <Member type="Constructor">public Game()</Member>
+        <Member type="Method">public void MouseButtonDown(object sender, MouseButtonEventArgs e)</Member>
+        <Member type="Method">private void QueryMatrixLocation()</Member>
+        <Member type="Method">private void SetProjectionMatrix(Matrix matrix)</Member>
+        <Member type="Method">private void SetLightPosition(Vector3 light)</Member>
+        <Member type="Method">protected override void OnUpdateFrame(FrameEventArgs e)</Member>
+        <Member type="Method">protected override void OnRenderFrame(FrameEventArgs e)</Member>
+        <Member type="Method">protected override void OnResize(EventArgs e)</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Structure">
+        <Name>Vertex</Name>
+        <Access>Public</Access>
+        <Location left="1178" top="338" />
+        <Size width="489" height="310" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private Vector3 position</Member>
+        <Member type="Field">private Vector3 normal</Member>
+        <Member type="Field">private readonly int sizeInBytes</Member>
+        <Member type="Constructor">public Vertex(Vector3 position, Vector3 normal)</Member>
+        <Member type="Constructor">public Vertex(SerializationInfo info, StreamingContext context)</Member>
+        <Member type="Property">public Vector3 Position { get; set; }</Member>
+        <Member type="Property">public Vector3 Normal { get; set; }</Member>
+        <Member type="Property">public static int SizeInBytes { get; }</Member>
+        <Member type="Method">void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)</Member>
+      </Entity>
+      <Entity type="Class">
+        <Name>VNPair</Name>
+        <Access>Public</Access>
+        <Location left="1178" top="39" />
+        <Size width="290" height="277" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private int position</Member>
+        <Member type="Field">private int normal</Member>
+        <Member type="Constructor">public VNPair(int position, int normal)</Member>
+        <Member type="Constructor">public VNPair()</Member>
+        <Member type="Method">public static bool operator ==(VNPair pair1, VNPair pair2)</Member>
+        <Member type="Method">public static bool operator !=(VNPair pair1, VNPair pair2)</Member>
+        <Member type="Method">public override string ToString()</Member>
+        <Member type="Method">public override bool Equals(object obj)</Member>
+        <Member type="Method">public override int GetHashCode()</Member>
+        <Member type="Property">public int P { get; set; }</Member>
+        <Member type="Property">public int N { get; set; }</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Mesh</Name>
+        <Access>Public</Access>
+        <Location left="787" top="667" />
+        <Size width="337" height="292" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private static Dictionary&lt;string, Mesh&gt; meshRegister</Member>
+        <Member type="Field">private static bool drawn</Member>
+        <Member type="Field">private int[] indexArray</Member>
+        <Member type="Field">private Vertex[] vertexArray</Member>
+        <Member type="Field">private int VboID</Member>
+        <Member type="Field">private int indicesVboHandle</Member>
+        <Member type="Constructor">private Mesh(string fileName, string MeshName)</Member>
+        <Member type="Method">public static Mesh CreateMesh(string fileName, string meshName)</Member>
+        <Member type="Method">private void LoadVertices()</Member>
+        <Member type="Method">private void LoadIndexer()</Member>
+        <Member type="Method">public void Draw()</Member>
+        <Member type="Method">public void LoadObjFile(string objFileName)</Member>
+        <Modifier>None</Modifier>
+      </Entity>
+      <Entity type="Structure">
+        <Name>Byte4</Name>
+        <Access>Public</Access>
+        <Location left="46" top="244" />
+        <Size width="162" height="216" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">public byte R</Member>
+        <Member type="Field">public byte G</Member>
+        <Member type="Field">public byte B</Member>
+        <Member type="Field">public byte A</Member>
+        <Member type="Constructor">public Byte4(byte[] input)</Member>
+        <Member type="Method">public uint ToUInt32()</Member>
+        <Member type="Method">public override string ToString()</Member>
+      </Entity>
+      <Entity type="Class">
+        <Name>PickRegister</Name>
+        <Access>Public</Access>
+        <Location left="840" top="116" />
+        <Size width="230" height="216" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private static readonly PickRegister instance</Member>
+        <Member type="Field">private Dictionary&lt;int, Cube&gt; register</Member>
+        <Member type="Field">private int nextID</Member>
+        <Member type="Constructor">private PickRegister()</Member>
+        <Member type="Property">public static PickRegister Instance { get; }</Member>
+        <Member type="Method">public int GetID(Cube cubeRef)</Member>
+        <Member type="Method">public void Remove(int key)</Member>
+        <Member type="Method">public Cube LookupCube(int id)</Member>
+        <Modifier>Sealed</Modifier>
+      </Entity>
+      <Entity type="Enum">
+        <Name>RenderState</Name>
+        <Access>Public</Access>
+        <Location left="46" top="487" />
+        <Size width="162" height="106" />
+        <Collapsed>False</Collapsed>
+        <Value>Select</Value>
+        <Value>Render</Value>
+      </Entity>
+      <Entity type="Class">
+        <Name>ApplicationState</Name>
+        <Access>Public</Access>
+        <Location left="46" top="39" />
+        <Size width="274" height="173" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private static readonly ApplicationState instance</Member>
+        <Member type="Field">private RenderState currentState</Member>
+        <Member type="Property">public ApplicationState Instance { get; set; }</Member>
+        <Member type="Property">public RenderState currentState { get; }</Member>
+        <Member type="Method">public void SetRenderState(RenderState state)</Member>
+        <Modifier>Sealed</Modifier>
+      </Entity>
+      <Entity type="Class">
+        <Name>Shader</Name>
+        <Access>Public</Access>
+        <Location left="840" top="384" />
+        <Size width="284" height="264" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private int shaderID</Member>
+        <Member type="Field">private int vertexShader</Member>
+        <Member type="Field">private int fragmentShader</Member>
+        <Member type="Field">private static Dictionary&lt;string, Shader&gt; shaderRegister</Member>
+        <Member type="Property">public int ShaderID { get; set; }</Member>
+        <Member type="Constructor">private Shader()</Member>
+        <Member type="Method">static void ValidateShader()</Member>
+        <Member type="Method">public static Shader CreateShader()</Member>
+        <Member type="Method">static void ValidateProgram()</Member>
+        <Member type="Method">public void Bind()</Member>
+        <Member type="Method">public void UnBind()</Member>
+        <Modifier>Sealed</Modifier>
+      </Entity>
+    </Entities>
+    <Relationships>
+      <Relationship type="Association" first="1" second="11">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>771</X>
+          <Y>351</Y>
+        </BendPoint>
+        <Direction>Bidirectional</Direction>
+        <AssociationType>Aggregation</AssociationType>
+        <StartRole>has</StartRole>
+      </Relationship>
+      <Relationship type="Association" first="1" second="6">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>733</X>
+          <Y>549</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>762</X>
+          <Y>815</Y>
+        </BendPoint>
+        <Direction>Bidirectional</Direction>
+        <AssociationType>Aggregation</AssociationType>
+        <StartRole>has</StartRole>
+      </Relationship>
+      <Relationship type="Association" first="8" second="8">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>1116</X>
+          <Y>282</Y>
+        </BendPoint>
+        <Direction>Bidirectional</Direction>
+        <AssociationType>Aggregation</AssociationType>
+        <StartRole>has</StartRole>
+        <EndMultiplicity>1</EndMultiplicity>
+      </Relationship>
+      <Relationship type="Association" first="1" second="8">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Horizontal</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>729</X>
+          <Y>278</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Association</AssociationType>
+        <EndRole>references</EndRole>
+      </Relationship>
+      <Relationship type="Association" first="3" second="1">
+        <Label>
+        </Label>
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>472</X>
+          <Y>765</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>511</X>
+          <Y>716</Y>
+        </BendPoint>
+        <Direction>Bidirectional</Direction>
+        <AssociationType>Aggregation</AssociationType>
+        <StartRole>has</StartRole>
+        <EndMultiplicity>*</EndMultiplicity>
+      </Relationship>
+    </Relationships>
+  </ProjectItem>
+</Project>
