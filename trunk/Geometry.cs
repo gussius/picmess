@@ -31,17 +31,7 @@ namespace LearnShader
         public Cube LookupCube(int id)
         {
             if (register.ContainsKey(id))
-            {
-                
                 return register[id];
-            }
-            Console.WriteLine(".. id = {0}", id);
-
-            foreach (int member in register.Keys)
-            {
-                Console.Write("{0}, ", register[member].Id);
-            }
-
             return null;
         }
 
@@ -273,7 +263,7 @@ namespace LearnShader
             register = PickRegister.Instance;
             id = register.GetId(this);
 
-            this.color = new Color4((byte)(id >> 24), (byte)(id >> 16), (byte)(id >> 8), (byte)id);
+            this.color = new Color4((byte)id, (byte)(id >> 8), (byte)(id >> 16), (byte)(id >> 24));
 
             sourceFile = @"C:\Temp\cube.obj";
             cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
@@ -451,14 +441,27 @@ namespace LearnShader
         }
     }
 
-    struct Rgba
+    struct Byte4
     {
         public byte R, G, B, A;
 
+        public Byte4(byte[] input)
+        {
+            R = input[0];
+            G = input[1];
+            B = input[2];
+            A = input[3];
+        }
+
+        public uint ToUInt32()
+        {
+            byte[] temp = new byte[] { this.R, this.G, this.B, this.A };
+            return BitConverter.ToUInt32(temp, 0);
+        }
+
         public override string ToString()
         {
-            string result = "{ R, G, B, A } = { " + R + ", " + G + ", " + B + ", " + A + " }";
-            return result;
+            return "{R, G, B, A} = { " + this.R + ", " + this.G + ", " + this.B + ", " + this.A + " }";
         }
     }
 }
