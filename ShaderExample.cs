@@ -54,9 +54,9 @@ namespace LearnShader
             Byte4 pixel = new Byte4();
             GL.ReadPixels(e.X, this.Height - e.Y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
             Cube cubeRef;
-            if ((cubeRef = PickRegister.Instance.LookupCube((int)pixel.ToUInt32())) != null)
+            if ((cubeRef = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32())) != null)
             {
-                PickRegister.Instance.LookupCube((int)pixel.ToUInt32()).Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
+                cubeRef.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
                 Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
             }
         }

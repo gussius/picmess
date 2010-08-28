@@ -26,7 +26,7 @@
       <Entity type="Class">
         <Name>Cube</Name>
         <Access>Public</Access>
-        <Location left="576" top="615" />
+        <Location left="576" top="813" />
         <Size width="348" height="434" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private string name</Member>
@@ -42,7 +42,6 @@
         <Member type="Field">private Matrix4 modelviewMatrix</Member>
         <Member type="Field">private int modelviewMatrixLocation</Member>
         <Member type="Field">ApplicationState appState</Member>
-        <Member type="Field">int newField</Member>
         <Member type="Constructor">public Cube(Vector3 position, Vector3 rotation, Color4 color)</Member>
         <Member type="Property">public Vector3 Position { get; set; }</Member>
         <Member type="Property">public Vector3 Rotation { get; set; }</Member>
@@ -105,7 +104,7 @@
       <Entity type="Class">
         <Name>Mesh</Name>
         <Access>Public</Access>
-        <Location left="1040" top="874" />
+        <Location left="1041" top="929" />
         <Size width="332" height="292" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static Dictionary&lt;string, Mesh&gt; meshRegister</Member>
@@ -178,7 +177,7 @@
       <Entity type="Class">
         <Name>Shader</Name>
         <Access>Public</Access>
-        <Location left="1040" top="568" />
+        <Location left="1041" top="623" />
         <Size width="332" height="264" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private int shaderID</Member>
@@ -238,6 +237,15 @@
         <Location left="57" top="416" />
         <Size width="160" height="75" />
       </Entity>
+      <Entity type="Interface">
+        <Name>ISelectable</Name>
+        <Access>Public</Access>
+        <Location left="576" top="521" />
+        <Size width="210" height="216" />
+        <Collapsed>False</Collapsed>
+        <Member type="Property">int Id { get; set; }</Member>
+        <Member type="Property">bool IsSelected { get; set; }</Member>
+      </Entity>
     </Entities>
     <Relationships>
       <Relationship type="Association" first="1" second="10">
@@ -246,8 +254,12 @@
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>991</X>
-          <Y>767</Y>
+          <X>976</X>
+          <Y>880</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1013</X>
+          <Y>824</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -259,12 +271,12 @@
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>953</X>
+          <X>958</X>
           <Y>965</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1015</X>
-          <Y>965</Y>
+          <X>1016</X>
+          <Y>1020</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -284,22 +296,6 @@
         <StartRole>has</StartRole>
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
-      <Relationship type="Association" first="1" second="7">
-        <Label>
-        </Label>
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>891</X>
-          <Y>568</Y>
-        </BendPoint>
-        <BendPoint relativeToStartShape="False">
-          <X>1142</X>
-          <Y>432</Y>
-        </BendPoint>
-        <Direction>Unidirectional</Direction>
-        <AssociationType>Association</AssociationType>
-      </Relationship>
       <Relationship type="Association" first="3" second="1">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
@@ -309,7 +305,7 @@
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>525</X>
-          <Y>765</Y>
+          <Y>963</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -375,11 +371,11 @@
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>845</X>
-          <Y>551</Y>
+          <Y>735</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>845</X>
-          <Y>274</Y>
+          <Y>271</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
@@ -404,6 +400,28 @@
         <BendPoint relativeToStartShape="False">
           <X>372</X>
           <Y>256</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Association</AssociationType>
+      </Relationship>
+      <Relationship type="Realization" first="1" second="17">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="False">
+          <X>666</X>
+          <Y>762</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Association" first="17" second="7">
+        <StartOrientation>Horizontal</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>909</X>
+          <Y>541</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>1138</X>
+          <Y>436</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
