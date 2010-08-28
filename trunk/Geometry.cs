@@ -9,16 +9,22 @@ using System.Text.RegularExpressions;
 
 namespace LearnShader
 {
+    public interface ISelectable
+    {
+        int Id { get; }
+        bool IsSelected { get; }
+    }
+
     public sealed class PickRegister
     {
         private static readonly PickRegister instance = new PickRegister();
-        private Dictionary<int, Cube> register = new Dictionary<int, Cube>();
+        private Dictionary<int, ISelectable> register = new Dictionary<int, ISelectable>();
         private static int nextId = 8000000;
 
-        public int GetId(Cube cubeRef)
+        public int GetId(ISelectable selectableRef)
         {
             nextId = nextId + 100000;
-            register.Add(nextId, cubeRef);
+            register.Add(nextId, selectableRef);
 
             return nextId;
         }
@@ -28,7 +34,7 @@ namespace LearnShader
             register.Remove(key);
         }
 
-        public Cube LookupCube(int id)
+        public ISelectable LookupSelectable(int id)
         {
             if (register.ContainsKey(id))
                 return register[id];
@@ -239,7 +245,7 @@ namespace LearnShader
         //Could write a 'LoadMaxFile(...)' here to handle 3dsMax file meshes.
     }
 
-    public class Cube
+    public class Cube : ISelectable
     {
         private Color4 color;
         private Vector3 position;
@@ -253,6 +259,7 @@ namespace LearnShader
         private string name = "cube";
         PickRegister register;
         private int id;
+        private bool isSelected;
 
         public Cube(Vector3 position, Vector3 rotation, Color4 color)
         {
@@ -308,6 +315,11 @@ namespace LearnShader
         public int Id
         {
             get { return id; }
+        }
+
+        public bool IsSelected
+        {
+            get { return isSelected; }
         }
 
         public void Draw()
