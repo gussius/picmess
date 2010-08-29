@@ -170,7 +170,7 @@
         <Member type="Field">private RenderState currentState</Member>
         <Member type="Field">FrameBufferManager frameBufferManager</Member>
         <Member type="Property">public ApplicationState Instance { get; }</Member>
-        <Member type="Property">public RenderState currentState { get; }</Member>
+        <Member type="Property">public RenderState CurrentState { get; }</Member>
         <Member type="Method">public void SetRenderState(RenderState state)</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
@@ -202,7 +202,7 @@
         <Member type="Field">private static FrameBufferManager instance</Member>
         <Member type="Field">uint frameBuffer</Member>
         <Member type="Field">uint[] renderBuffer</Member>
-        <Member type="Property">public int Instance { get; }</Member>
+        <Member type="Property">public FrameBufferManager Instance { get; }</Member>
         <Member type="Property">public uint ColorBuffer { get; }</Member>
         <Member type="Property">public uint DepthBuffer { get; }</Member>
         <Modifier>None</Modifier>
@@ -249,8 +249,6 @@
     </Entities>
     <Relationships>
       <Relationship type="Association" first="1" second="10">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -266,8 +264,6 @@
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="1" second="5">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -283,8 +279,6 @@
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="7" second="7">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -297,6 +291,8 @@
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="3" second="1">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -313,6 +309,8 @@
         <EndMultiplicity>*</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="9" second="9">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -329,8 +327,6 @@
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="11" second="11">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -367,6 +363,8 @@
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="1" second="11">
+        <Label>
+        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -381,6 +379,8 @@
         <AssociationType>Association</AssociationType>
       </Relationship>
       <Relationship type="Association" first="9" second="11">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -395,6 +395,8 @@
         <AssociationType>Association</AssociationType>
       </Relationship>
       <Relationship type="Association" first="3" second="9">
+        <Label>
+        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="False">
@@ -413,6 +415,8 @@
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="17" second="7">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
