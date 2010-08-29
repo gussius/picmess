@@ -11,44 +11,17 @@ namespace LearnShader
 {
     public interface ISelectable
     {
+        /// <summary>
+        /// Returns the instance id
+        /// </summary>
         int Id { get; }
+
+        /// <summary>
+        /// If the instance is selected the property returns true.
+        /// TODO: This might be related to a selection register.
+        /// </summary>
         bool IsSelected { get; }
-    }
 
-    public sealed class PickRegister
-    {
-        private static readonly PickRegister instance = new PickRegister();
-        private Dictionary<int, ISelectable> register = new Dictionary<int, ISelectable>();
-        private static int nextId = 8000000;
-
-        public int GetId(ISelectable selectableRef)
-        {
-            nextId = nextId + 100000;
-            register.Add(nextId, selectableRef);
-
-            return nextId;
-        }
-
-        public void Remove(int key)
-        {
-            register.Remove(key);
-        }
-
-        public ISelectable LookupSelectable(int id)
-        {
-            if (register.ContainsKey(id))
-                return register[id];
-            return null;
-        }
-
-        private PickRegister()
-        {
-        }
-
-        public static PickRegister Instance
-        {
-            get { return instance; }
-        }
     }
 
     class Mesh
@@ -257,7 +230,6 @@ namespace LearnShader
         Matrix4 modelviewMatrix;
         int modelviewMatrixLocation;
         private string name = "cube";
-        PickRegister register;
         private int id;
         private bool isSelected;
 
@@ -265,11 +237,8 @@ namespace LearnShader
         {
             this.position = position;
             this.rotation = rotation;
-            //this.color = color;
 
-            register = PickRegister.Instance;
-            id = register.GetId(this);
-
+            this.registerCube();
             this.color = new Color4((byte)id, (byte)(id >> 8), (byte)(id >> 16), (byte)(id >> 24));
 
             sourceFile = @"C:\Temp\cube.obj";
@@ -287,6 +256,11 @@ namespace LearnShader
 
             surfaceColorLocation = GL.GetUniformLocation(cubeShader.ShaderID, "surfaceColor");
             modelviewMatrixLocation = GL.GetUniformLocation(cubeShader.ShaderID, "modelview_matrix");
+        }
+
+        private void registerCube()
+        {
+            id = PickRegister.Instance.GetId(this);
         }
 
         public Vector3 Position
