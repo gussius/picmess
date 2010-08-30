@@ -21,6 +21,8 @@ namespace LearnShader
         Random randomNumber;
         Vector3 randomVector;
         Vector3 randomRotation;
+        FrameBufferManager FBManager;
+        ApplicationState AppState;
 
         public Game()
             : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 8), "OpenGL 3.1 Example", 0,
@@ -47,6 +49,13 @@ namespace LearnShader
                 randomRotation = new Vector3(randomNumber.Next(0, 314)/100, randomNumber.Next(0, 314)/100, 0);
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
+
+            //Sandbox
+
+            FBManager = FrameBufferManager.Instance;
+            AppState = ApplicationState.Instance;
+            
+
         }
 
         public void MouseButtonDown(object sender, MouseButtonEventArgs e)
