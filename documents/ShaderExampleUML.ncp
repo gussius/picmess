@@ -139,16 +139,16 @@
         <Name>PickRegister</Name>
         <Access>Public</Access>
         <Location left="1102" top="52" />
-        <Size width="230" height="216" />
+        <Size width="250" height="216" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static readonly PickRegister instance</Member>
-        <Member type="Field">private Dictionary&lt;int, Cube&gt; register</Member>
+        <Member type="Field">private Dictionary&lt;int, ISelectable&gt; register</Member>
         <Member type="Field">private int nextID</Member>
         <Member type="Constructor">private PickRegister()</Member>
         <Member type="Property">public static PickRegister Instance { get; }</Member>
-        <Member type="Method">public int GetID(Cube cubeRef)</Member>
+        <Member type="Method">public int GetID(ISelectable selectableRef)</Member>
         <Member type="Method">public void Remove(int key)</Member>
-        <Member type="Method">public Cube LookupCube(int id)</Member>
+        <Member type="Method">public ISelectable LookupSelectable(int id)</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Enum">
@@ -164,11 +164,13 @@
         <Name>ApplicationState</Name>
         <Access>Public</Access>
         <Location left="129" top="52" />
-        <Size width="274" height="179" />
+        <Size width="274" height="213" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static readonly ApplicationState instance</Member>
         <Member type="Field">private RenderState currentState</Member>
         <Member type="Field">FrameBufferManager frameBufferManager</Member>
+        <Member type="Constructor">static ApplicationState()</Member>
+        <Member type="Constructor">private ApplicationState()</Member>
         <Member type="Property">public ApplicationState Instance { get; }</Member>
         <Member type="Property">public RenderState CurrentState { get; }</Member>
         <Member type="Method">public void SetRenderState(RenderState state)</Member>
@@ -197,11 +199,15 @@
         <Name>FrameBufferManager</Name>
         <Access>Public</Access>
         <Location left="608" top="52" />
-        <Size width="316" height="179" />
+        <Size width="316" height="247" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static FrameBufferManager instance</Member>
         <Member type="Field">uint frameBuffer</Member>
         <Member type="Field">uint[] renderBuffer</Member>
+        <Member type="Field">int viewportWidth</Member>
+        <Member type="Field">int viewportHeight</Member>
+        <Member type="Constructor">static FrameBufferManager()</Member>
+        <Member type="Constructor">private FrameBufferManager()</Member>
         <Member type="Property">public FrameBufferManager Instance { get; }</Member>
         <Member type="Property">public uint ColorBuffer { get; }</Member>
         <Member type="Property">public uint DepthBuffer { get; }</Member>
@@ -210,32 +216,12 @@
       <Entity type="Enum">
         <Name>RenderBuffer</Name>
         <Access>Public</Access>
-        <Location left="608" top="311" />
+        <Location left="608" top="340" />
         <Size width="162" height="112" />
         <Collapsed>False</Collapsed>
         <Value>Color</Value>
         <Value>Depth</Value>
         <Value>NumRenderBuffers</Value>
-      </Entity>
-      <Entity type="Comment">
-        <Text>Not yet implemented</Text>
-        <Location left="304" top="32" />
-        <Size width="160" height="75" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>Not yet implemented</Text>
-        <Location left="828" top="32" />
-        <Size width="160" height="75" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>Not yet implemented</Text>
-        <Location left="535" top="416" />
-        <Size width="160" height="75" />
-      </Entity>
-      <Entity type="Comment">
-        <Text>Not yet implemented</Text>
-        <Location left="57" top="416" />
-        <Size width="160" height="75" />
       </Entity>
       <Entity type="Interface">
         <Name>ISelectable</Name>
@@ -249,6 +235,8 @@
     </Entities>
     <Relationships>
       <Relationship type="Association" first="1" second="10">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -264,6 +252,8 @@
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="1" second="5">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -279,10 +269,12 @@
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="7" second="7">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>1373</X>
+          <X>1393</X>
           <Y>219</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
@@ -291,8 +283,6 @@
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="3" second="1">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -309,8 +299,6 @@
         <EndMultiplicity>*</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="9" second="9">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -319,7 +307,7 @@
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>209</X>
-          <Y>256</Y>
+          <Y>290</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -327,6 +315,8 @@
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="11" second="11">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -335,7 +325,7 @@
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>883</X>
-          <Y>256</Y>
+          <Y>324</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -347,7 +337,7 @@
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>809</X>
-          <Y>334</Y>
+          <Y>402</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Nesting" first="9" second="8">
@@ -355,7 +345,7 @@
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>330</X>
-          <Y>261</Y>
+          <Y>295</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>321</X>
@@ -363,8 +353,6 @@
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="1" second="11">
-        <Label>
-        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -373,14 +361,12 @@
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>845</X>
-          <Y>271</Y>
+          <Y>339</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
       </Relationship>
       <Relationship type="Association" first="9" second="11">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -395,18 +381,16 @@
         <AssociationType>Association</AssociationType>
       </Relationship>
       <Relationship type="Association" first="3" second="9">
-        <Label>
-        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="False">
           <X>372</X>
-          <Y>256</Y>
+          <Y>290</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
       </Relationship>
-      <Relationship type="Realization" first="1" second="17">
+      <Relationship type="Realization" first="1" second="13">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="False">
@@ -414,9 +398,7 @@
           <Y>762</Y>
         </BendPoint>
       </Relationship>
-      <Relationship type="Association" first="17" second="7">
-        <Label>
-        </Label>
+      <Relationship type="Association" first="13" second="7">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
