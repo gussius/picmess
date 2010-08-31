@@ -7,11 +7,25 @@ using OpenTK.Graphics;
 
 namespace LearnShader
 {
-    public sealed class ApplicationState
+    public class ApplicationState
     {
         private static ApplicationState instance;
         RenderState currentState;
         FrameBufferManager frameBufferManager;
+
+        public event EventHandler<ApplicationStateEventArgs> ApplicationStateEvent;
+
+        private void ActivateSelectMode()
+        {
+            OnSelect();
+        }
+
+        protected virtual void OnSelect()
+        {
+            EventHandler<ApplicationStateEventArgs> localHandler = ApplicationStateEvent;
+            if (localHandler != null)
+                localHandler(this, new ApplicationStateEventArgs(RenderState.Select));
+        }
 
         // Private Instance Constructor
         private ApplicationState()
@@ -39,10 +53,27 @@ namespace LearnShader
         public void SetRenderState(RenderState state)
         {
             currentState = state;
+            if (state == RenderState.Select)
+                ActivateSelectMode();
+
             // Manipulate the FrameBufferManager to change system RenderBuffers.
         }
     }
 
+    public class ApplicationStateEventArgs : EventArgs
+    {
+        RenderState state;
+
+        public ApplicationStateEventArgs(RenderState state)
+        {
+            this.state = state;
+        }
+
+        public RenderState State
+        {
+            get { return state; }
+        }
+    }
 
     public class FrameBufferManager
     {
@@ -60,6 +91,8 @@ namespace LearnShader
         static FrameBufferManager()
         {
             instance = new FrameBufferManager();
+
+            ApplicationState.Instance.ApplicationStateEvent += new EventHandler<ApplicationStateEventArgs>(instance.Instance_ApplicationStateEvent);
 
             // This is where we initialise the GL FrameBuffers and RenderBuffers.
             instance.renderBuffer = new uint[(int)RenderBuffer.NumRenderBuffers];
@@ -97,7 +130,12 @@ namespace LearnShader
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
-        
+
+        private void Instance_ApplicationStateEvent(object sender, ApplicationStateEventArgs e)
+        {
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, frameBuffer);
+        }
+
         public static FrameBufferManager Instance
         {
             get { return instance; }

@@ -54,7 +54,6 @@ namespace LearnShader
 
             FBManager = FrameBufferManager.Instance;
             AppState = ApplicationState.Instance;
-            
 
         }
 
@@ -126,6 +125,11 @@ namespace LearnShader
             if (Keyboard[OpenTK.Input.Key.Escape])
             {
                 Exit();
+            }
+
+            if (Keyboard[OpenTK.Input.Key.A])
+            {
+                AppState.SetRenderState(RenderState.Select);
             }
         }
 
