@@ -15,48 +15,41 @@ namespace LearnShader
 
         public event EventHandler<ApplicationStateEventArgs> ApplicationStateEvent;
 
-        private void ActivateSelectMode()
-        {
-            OnSelect();
-        }
-
-        protected virtual void OnSelect()
-        {
-            EventHandler<ApplicationStateEventArgs> localHandler = ApplicationStateEvent;
-            if (localHandler != null)
-                localHandler(this, new ApplicationStateEventArgs(RenderState.Select));
-        }
-
         // Private Instance Constructor
         private ApplicationState()
         {
             Console.WriteLine("ApplicationState() constructor executed");
         }
-
         static ApplicationState()
         {
             instance = new ApplicationState();
             instance.frameBufferManager = FrameBufferManager.Instance;
             instance.currentState = RenderState.Render;
         }
-
         public static ApplicationState Instance
         {
             get { return instance; }
         }
-
         RenderState CurrentState
         {
             get { return currentState; }
         }
-
         public void SetRenderState(RenderState state)
         {
             currentState = state;
-            if (state == RenderState.Select)
-                ActivateSelectMode();
+            EventHandler<ApplicationStateEventArgs> localHandler = ApplicationStateEvent;
 
-            // Manipulate the FrameBufferManager to change system RenderBuffers.
+            if (localHandler != null)
+            {
+                if (state == RenderState.Select)
+                {
+                    localHandler(this, new ApplicationStateEventArgs(RenderState.Select));
+                }
+                if (state == RenderState.Render)
+                {
+                    localHandler(this, new ApplicationStateEventArgs(RenderState.Render));
+                }
+            }
         }
     }
 
@@ -78,16 +71,15 @@ namespace LearnShader
     public class FrameBufferManager
     {
         private static FrameBufferManager instance;
-        uint frameBuffer;
-        uint[] renderBuffer;
-        int viewportWidth, viewportHeight;
+        private uint selectionBuffer;
+        private uint[] renderBuffer;
+        private int viewportWidth, viewportHeight;
 
         // Private Instance Constructor
         private FrameBufferManager()
         {
             Console.WriteLine("FrameBufferManager() constructor executed");
         }
-
         static FrameBufferManager()
         {
             instance = new FrameBufferManager();
@@ -114,8 +106,8 @@ namespace LearnShader
                                    instance.viewportWidth,
                                    instance.viewportHeight);
 
-            GL.GenFramebuffers(1, out instance.frameBuffer);
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.frameBuffer);
+            GL.GenFramebuffers(1, out instance.selectionBuffer);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
             GL.FramebufferRenderbuffer(FramebufferTarget.DrawFramebuffer,
                                        FramebufferAttachment.ColorAttachment0,
                                        RenderbufferTarget.Renderbuffer,
@@ -130,25 +122,29 @@ namespace LearnShader
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
-
         private void Instance_ApplicationStateEvent(object sender, ApplicationStateEventArgs e)
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, frameBuffer);
+            if (e.State == RenderState.Select)
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
+            
+            if (e.State == RenderState.Render)
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
-
         public static FrameBufferManager Instance
         {
             get { return instance; }
         }
-
         uint ColorBuffer
         {
             get { return renderBuffer[(uint)RenderBuffer.Color]; }
         }
-
         uint DepthBuffer
         {
             get { return renderBuffer[(uint)RenderBuffer.Depth]; }
+        }
+        uint SelectionBuffer
+        {
+            get { return selectionBuffer; }
         }
     }
 
@@ -166,23 +162,19 @@ namespace LearnShader
 
             return nextId;
         }
-
         public void Remove(int key)
         {
             register.Remove(key);
         }
-
         public ISelectable LookupSelectable(int id)
         {
             if (register.ContainsKey(id))
                 return register[id];
             return null;
         }
-
         private PickRegister()
         {
         }
-
         public static PickRegister Instance
         {
             get { return instance; }
@@ -192,8 +184,8 @@ namespace LearnShader
 
     public enum RenderState
     {
-        Select,
-        Render
+        Render,
+        Select
     }
 
 

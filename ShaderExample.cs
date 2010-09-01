@@ -59,14 +59,10 @@ namespace LearnShader
 
         public void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Byte4 pixel = new Byte4();
-            GL.ReadPixels(e.X, this.Height - e.Y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
-            Cube cubeRef;
-            if ((cubeRef = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32())) != null)
-            {
-                cubeRef.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
-                Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
-            }
+            DrawScene(RenderState.Select);
+            GL.Viewport(0, 0, Width, Height);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            PickColor(e.X, e.Y);
         }
 
         private void QueryMatrixLocations()
@@ -126,22 +122,22 @@ namespace LearnShader
             {
                 Exit();
             }
-
-            if (Keyboard[OpenTK.Input.Key.A])
-            {
-                AppState.SetRenderState(RenderState.Select);
-            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 1);
             GL.Viewport(0, 0, Width, Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            foreach (Cube sample in cubeArray)
-            {
-                sample.Draw();
-            }
+            //DrawScene(RenderState.Render);
+
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 1);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+            GL.Viewport(0, 0, Width, Height);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+
 
             GL.Flush();
             SwapBuffers();
@@ -151,6 +147,48 @@ namespace LearnShader
         {
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
             SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
+        }
+
+        private void DrawScene(RenderState state)
+        {
+            if (state == RenderState.Select)
+            {
+                Console.WriteLine("DrawScene with Select");
+                ApplicationState.Instance.SetRenderState(RenderState.Select);
+                foreach (Cube sample in cubeArray)
+                {
+                    sample.Draw();
+                }
+                ApplicationState.Instance.SetRenderState(RenderState.Render);
+                foreach (Cube sample in cubeArray)
+                {
+                    sample.Draw();
+                }
+            }
+            if (state == RenderState.Render)
+            {
+                foreach (Cube sample in cubeArray)
+                    sample.Draw();
+            }
+        }
+
+        private ISelectable PickColor(int x, int y)
+        {
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 1); // use "1" for now, TODO: use reference.
+            Byte4 pixel = new Byte4();
+            GL.ReadPixels(x, this.Height - y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
+            Cube selected;
+            if ((selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32())) != null)
+            {
+                selected.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
+                Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
+                Console.WriteLine("-- Picked Cube Color is {0}", selected.Color.ToString());
+                int bindStatus;
+                GL.GetInteger(GetPName.FramebufferBinding, out bindStatus);
+                Console.WriteLine("-- Binding Status = {0}", bindStatus);
+            }
+
+            return selected;
         }
     }
 
