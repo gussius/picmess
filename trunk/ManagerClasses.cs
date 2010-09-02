@@ -84,13 +84,13 @@ namespace LearnShader
         {
             instance = new FrameBufferManager();
 
-            ApplicationState.Instance.ApplicationStateEvent += new EventHandler<ApplicationStateEventArgs>(instance.Instance_ApplicationStateEvent);
+            //ApplicationState.Instance.ApplicationStateEvent += new EventHandler<ApplicationStateEventArgs>(instance.Instance_ApplicationStateEvent);
 
             // This is where we initialise the GL FrameBuffers and RenderBuffers.
             instance.renderBuffer = new uint[(int)RenderBuffer.NumRenderBuffers];
             GL.GenRenderbuffers((int)RenderBuffer.NumRenderBuffers, instance.renderBuffer);
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, instance.renderBuffer[(int)RenderBuffer.Color]);
-            
+
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             instance.viewportWidth = viewport[2];
@@ -122,6 +122,7 @@ namespace LearnShader
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
+        /*
         private void Instance_ApplicationStateEvent(object sender, ApplicationStateEventArgs e)
         {
             if (e.State == RenderState.Select)
@@ -130,24 +131,27 @@ namespace LearnShader
             if (e.State == RenderState.Render)
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
+         * 
+         */
+
         public static FrameBufferManager Instance
         {
             get { return instance; }
         }
-        uint ColorBuffer
+        public uint ColorBuffer
         {
             get { return renderBuffer[(uint)RenderBuffer.Color]; }
         }
-        uint DepthBuffer
+        public uint DepthBuffer
         {
             get { return renderBuffer[(uint)RenderBuffer.Depth]; }
         }
-        uint SelectionBuffer
+        public uint SelectionBuffer
         {
             get { return selectionBuffer; }
         }
     }
-
+    
 
     public sealed class PickRegister
     {
