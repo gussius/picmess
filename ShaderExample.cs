@@ -60,9 +60,8 @@ namespace LearnShader
         public void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
             DrawScene(RenderState.Select);
-            GL.Viewport(0, 0, Width, Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             PickColor(e.X, e.Y);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
         private void QueryMatrixLocations()
@@ -126,19 +125,18 @@ namespace LearnShader
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 1);
-            GL.Viewport(0, 0, Width, Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            //GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 1);
+            //GL.Viewport(0, 0, Width, Height);
+            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //DrawScene(RenderState.Render);
-
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 1);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            GL.Viewport(0, 0, Width, Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            //GL.Viewport(0, 0, Width, Height);
+            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-
-
+            
+            
+            
             GL.Flush();
             SwapBuffers();
         }
@@ -153,32 +151,32 @@ namespace LearnShader
         {
             if (state == RenderState.Select)
             {
-                Console.WriteLine("DrawScene with Select");
-                ApplicationState.Instance.SetRenderState(RenderState.Select);
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FBManager.SelectionBuffer);
                 foreach (Cube sample in cubeArray)
                 {
                     sample.Draw();
                 }
-                ApplicationState.Instance.SetRenderState(RenderState.Render);
-                foreach (Cube sample in cubeArray)
-                {
-                    sample.Draw();
-                }
+                GL.Flush();
+                SwapBuffers();
             }
             if (state == RenderState.Render)
             {
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
                 foreach (Cube sample in cubeArray)
                     sample.Draw();
             }
+            GL.Flush();
+            SwapBuffers();
         }
 
         private ISelectable PickColor(int x, int y)
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 1); // use "1" for now, TODO: use reference.
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FrameBufferManager.Instance.SelectionBuffer);
             Byte4 pixel = new Byte4();
             GL.ReadPixels(x, this.Height - y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
-            Cube selected;
-            if ((selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32())) != null)
+            Cube selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32());
+            Console.WriteLine("-- Picked Cube Color is {0}", pixel.ToString());
+            if (selected != null)
             {
                 selected.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
                 Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
