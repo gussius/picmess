@@ -12,7 +12,7 @@ namespace LearnShader
 {
     public class Game : GameWindow
     {
-        Cube cube;
+        // Fields
         public int projectionMatrixLocation;
         int lightPositionLocation;
         Matrix4 projectionMatrix;
@@ -21,28 +21,37 @@ namespace LearnShader
         Random randomNumber;
         Vector3 randomVector;
         Vector3 randomRotation;
-        FrameBufferManager FBManager;
-        ApplicationState AppState;
+        FrameBufferManager fbManager;
+        Cube cube;
+        int clearColor;
 
+        // Constructors
         public Game()
-            : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 8), "OpenGL 3.1 Example", 0,
-                DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
+            : base(640, 480, new GraphicsMode(new ColorFormat(8, 8, 8, 8), 16, 0, 8),
+                   "OpenGL 3.1 Example", 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
         {
-            cube = new Cube(new Vector3(0, 0, -20), new Vector3(0.0f, 0.0f, 0.25f*3.14f), new Color4(0.4f, 0.5f, 0.0f, 1.0f));
-            randomNumber = new Random();
-            cubeArray = new Cube[25];
-
-            Mouse.ButtonDown += new EventHandler<OpenTK.Input.MouseButtonEventArgs>(MouseButtonDown);
-
+            // Retrieve references to shader variables.
             QueryMatrixLocations();
-
-            float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.25f, widthToHeight, 60, 120));
             SetLightPosition(new Vector3(3.0f, 4.0f, 5.0f));
 
+            // Setup window view.
+            float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
+            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.25f, widthToHeight, 60, 120));
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
 
+            // Register a mouse button down event.
+            Mouse.ButtonDown += new EventHandler<OpenTK.Input.MouseButtonEventArgs>(MouseButtonDown);
+            
+
+            //  ------- Sandbox -------
+            
+            // Initialise objects to be drawn in the scene.
+            
+            randomNumber = new Random();
+            cubeArray = new Cube[25];
+
+            // Populate the Cube array with Cubes at random locations and rotations.
             for (int i = 0; i < 25; i++)
             {
                 randomVector = new Vector3(randomNumber.Next(-5, 5), randomNumber.Next(-5, 5), randomNumber.Next(-120, -10));
@@ -50,145 +59,80 @@ namespace LearnShader
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
 
-            //Sandbox
-
-            FBManager = FrameBufferManager.Instance;
-            AppState = ApplicationState.Instance;
+            // Create references to the manager classes singletons.
+            fbManager = FrameBufferManager.Instance;
 
         }
 
-        public void MouseButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DrawScene(RenderState.Select);
-            PickColor(e.X, e.Y);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        }
-
-        private void QueryMatrixLocations()
-        {
-            projectionMatrixLocation = GL.GetUniformLocation(cube.ShaderID, "projection_matrix");
-            lightPositionLocation = GL.GetUniformLocation(cube.ShaderID, "lightPosition");
-        }
-
-        private void SetProjectionMatrix(Matrix4 matrix)
-        {
-            projectionMatrix = matrix;
-            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
-        }
-
-        private void SetLightPosition(Vector3 light)
-        {
-            lightPosition = light;
-            GL.Uniform3(lightPositionLocation, ref lightPosition);
-        }
-
-        /*      Load and Save methods
-                private void SaveFile()
-                {
-                    using (Stream stream = File.Open("scene.gus", FileMode.Create))
-                    {
-                        BinaryFormatter bformatter = new BinaryFormatter();
-
-                        Console.WriteLine("Writing Scene Information");
-                        bformatter.Serialize(stream, vertexArray);
-                        bformatter.Serialize(stream, indexArray);
-                        stream.Close();
-                    }
-                }
-
-                private void LoadFile(string filename)
-                {
-                    using (Stream stream = File.Open(filename, FileMode.Open))
-                    {
-                        BinaryFormatter bformatter = new BinaryFormatter();
-
-                        Console.WriteLine("--Reading Scene Information from \"{0}\"", filename);
-                        vertexArray = (Vertex[])bformatter.Deserialize(stream);
-                        indexArray = (uint[])bformatter.Deserialize(stream);
-                        stream.Close();
-                    }
-                }
-                */
-
+        // Methods
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             foreach (Cube sample in cubeArray)
             {
                 sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
             }
-
             if (Keyboard[OpenTK.Input.Key.Escape])
             {
                 Exit();
             }
         }
-
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            //GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 1);
-            //GL.Viewport(0, 0, Width, Height);
-            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //DrawScene(RenderState.Render);
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 1);
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            //GL.Viewport(0, 0, Width, Height);
-            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-            
-            
-            
+            DrawScene(RenderState.Render);
             GL.Flush();
             SwapBuffers();
         }
-
         protected override void OnResize(EventArgs e)
         {
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
             SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
+            GL.Viewport(0, 0, Width, Height);
+            fbManager.UpdateSelectionViewport(Width, Height);
+        }        
+        private void QueryMatrixLocations()
+        {
+            projectionMatrixLocation = GL.GetUniformLocation(Cube.ShaderID, "projection_matrix");
+            lightPositionLocation = GL.GetUniformLocation(Cube.ShaderID, "lightPosition");
         }
-
+        private void SetProjectionMatrix(Matrix4 matrix)
+        {
+            projectionMatrix = matrix;
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
+        }
+        private void SetLightPosition(Vector3 light)
+        {
+            lightPosition = light;
+            GL.Uniform3(lightPositionLocation, ref lightPosition);
+        }
+        private void MouseButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PickColor(e.X, e.Y);
+        }
         private void DrawScene(RenderState state)
         {
-            if (state == RenderState.Select)
+            fbManager.BindFBO(state);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            foreach (Cube sample in cubeArray)
             {
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FBManager.SelectionBuffer);
-                foreach (Cube sample in cubeArray)
-                {
-                    sample.Draw();
-                }
-                GL.Flush();
-                SwapBuffers();
+                sample.Draw();
             }
-            if (state == RenderState.Render)
-            {
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-                foreach (Cube sample in cubeArray)
-                    sample.Draw();
-            }
-            GL.Flush();
-            SwapBuffers();
         }
-
         private ISelectable PickColor(int x, int y)
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FrameBufferManager.Instance.SelectionBuffer);
+            DrawScene(RenderState.Select);
+            fbManager.ReadFBO(RenderState.Select);
             Byte4 pixel = new Byte4();
             GL.ReadPixels(x, this.Height - y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
             Cube selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32());
-            Console.WriteLine("-- Picked Cube Color is {0}", pixel.ToString());
             if (selected != null)
             {
                 selected.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
-                Console.WriteLine("-- Picked Color Integer ID = {0}", pixel.ToUInt32());
-                Console.WriteLine("-- Picked Cube Color is {0}", selected.Color.ToString());
-                int bindStatus;
-                GL.GetInteger(GetPName.FramebufferBinding, out bindStatus);
-                Console.WriteLine("-- Binding Status = {0}", bindStatus);
             }
 
             return selected;
         }
     }
+
 
     public class EntryPoint
     {

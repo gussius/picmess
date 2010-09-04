@@ -11,28 +11,25 @@ namespace LearnShader
 {
     public interface ISelectable
     {
-        /// <summary>
-        /// Returns the instance id
-        /// </summary>
         int Id { get; }
-
-        /// <summary>
-        /// If the instance is selected the property returns true.
-        /// TODO: This might be related to a selection register.
-        /// </summary>
         bool IsSelected { get; }
-
+        
     }
+
 
     class Mesh
     {
+        // Static Fields
+        private static bool drawn = false;
+        private static Dictionary<string, Mesh> meshRegister = new Dictionary<string, Mesh>();
+
+        // Instance Fields
         private uint[] indexArray;
         private Vertex[] vertexArray;
         private int VboID;
         private int indicesVboHandle;
-        private static bool drawn = false;
-        private static Dictionary<string, Mesh> meshRegister = new Dictionary<string, Mesh>();
 
+        // Constructors
         public static Mesh CreateMesh(string fileName, string meshName)
         {
             if (meshRegister.ContainsKey(meshName))
@@ -40,7 +37,6 @@ namespace LearnShader
 
             return new Mesh(fileName, meshName);
         }
-
         private Mesh(string fileName, string meshName)
         {
             meshRegister.Add(meshName, this);
@@ -49,15 +45,7 @@ namespace LearnShader
             LoadIndexer();
         }
 
-        public void LoadVertices()
-        {
-            GL.GenBuffers(1, out VboID);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
-            GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
-                new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
-                vertexArray, BufferUsageHint.StaticDraw);
-        }
-
+        // Methods
         private void LoadIndexer()
         {
             GL.GenBuffers(1, out indicesVboHandle);
@@ -66,7 +54,14 @@ namespace LearnShader
                 new IntPtr(indexArray.Length * Vector3.SizeInBytes),
                 indexArray, BufferUsageHint.StaticDraw);
         }
-
+        public void LoadVertices()
+        {
+            GL.GenBuffers(1, out VboID);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VboID);
+            GL.BufferData<Vertex>(BufferTarget.ArrayBuffer,
+                new IntPtr(vertexArray.Length * Vertex.SizeInBytes),
+                vertexArray, BufferUsageHint.StaticDraw);
+        }
         public void Draw()
         {
             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
@@ -77,7 +72,6 @@ namespace LearnShader
                 drawn = true;
             }
         }
-
         public void LoadObjFile(string objFileName)
         {
             int v, vn, vt, f;
@@ -214,25 +208,29 @@ namespace LearnShader
             }
             #endregion
         }
-
-        //Could write a 'LoadMaxFile(...)' here to handle 3dsMax file meshes.
     }
+
 
     public class Cube : ISelectable
     {
+        // Static Fields
+        private static Shader cubeShader;
+        private static string name = "cube";
+        private static FrameBufferManager fbManager;
+
+        // Instance Fields
         private Color4 color;
         private Vector3 position;
         private Vector3 rotation;
         private Mesh cubeMesh;
-        private Shader cubeShader;
         private string sourceFile;
         private int surfaceColorLocation;
-        Matrix4 modelviewMatrix;
-        int modelviewMatrixLocation;
-        private string name = "cube";
+        private Matrix4 modelviewMatrix;
+        private int modelviewMatrixLocation;
         private int id;
         private bool isSelected;
 
+        // Constructors
         public Cube(Vector3 position, Vector3 rotation, Color4 color)
         {
             this.position = position;
@@ -242,9 +240,10 @@ namespace LearnShader
             this.color = new Color4((byte)id, (byte)(id >> 8), (byte)(id >> 16), (byte)(id >> 24));
 
             sourceFile = @"C:\Temp\cube.obj";
-            cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
+            
             cubeShader.Bind();
             cubeMesh = Mesh.CreateMesh(sourceFile, name);
+            fbManager = FrameBufferManager.Instance;
 
             GL.EnableVertexAttribArray(0);
             GL.BindAttribLocation(cubeShader.ShaderID, 0, "vertex_position");
@@ -258,46 +257,56 @@ namespace LearnShader
             modelviewMatrixLocation = GL.GetUniformLocation(cubeShader.ShaderID, "modelview_matrix");
         }
 
-        private void registerCube()
+        static Cube()
         {
-            id = PickRegister.Instance.GetId(this);
+            cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
         }
 
+        // Properties
         public Vector3 Position
         {
             get { return position; }
             set { position = value; }
         }
-
         public Vector3 Rotation
         {
             get { return rotation; }
             set { rotation = value; }
         }
-
         public Color4 Color
         {
             get { return color; }
             set { color = value; }
         }
-
-        public int ShaderID
+        public static int ShaderID
         {
             get { return cubeShader.ShaderID; }
         }
-
         public int Id
         {
             get { return id; }
         }
-
         public bool IsSelected
         {
             get { return isSelected; }
         }
 
+        // Methods
+        private void registerCube()
+        {
+            id = PickRegister.Instance.GetId(this);
+        }
         public void Draw()
         {
+            if (fbManager.CurrentState == RenderState.Select)
+            {
+                // Bind selectionShader
+            }
+            if (fbManager.CurrentState == RenderState.Render)
+            {
+                // Bind cubeShader
+            }
+
             modelviewMatrix = Matrix4.CreateRotationX(rotation.X) *
                               Matrix4.CreateRotationY(rotation.Y) *
                               Matrix4.CreateRotationZ(rotation.Z) *
@@ -308,48 +317,51 @@ namespace LearnShader
         }
     }
 
+
     [Serializable]
     struct Vertex : ISerializable
     {
-        private Vector3 position;
-        private Vector3 normal;
+        // Static Fields
         private static readonly int sizeInBytes = 24;
 
-        public Vector3 Position
-        {
-            get { return position; }
-            set { position = value; }
-        }
+        // Instance Fields
+        private Vector3 position;
+        private Vector3 normal;
 
-        public Vector3 Normal
-        {
-            get { return normal; }
-            set { normal = value; }
-        }
-
-        public static int SizeInBytes
-        {
-            get { return sizeInBytes; }
-        }
-
-        public override string ToString()
-        {
-            return "Position: {" + position.X + ", " + position.Y + ", " + position.Z + "}\n" +
-                   "Normal:   {" + normal.X + ", " + normal.Y + ", " + normal.Z + "}";
-        }
-
+        // Constructors
         public Vertex(Vector3 position, Vector3 normal)
         {
             this.position = position;
             this.normal = normal;
         }
-
         public Vertex(SerializationInfo info, StreamingContext context)
         {
             position = (Vector3)info.GetValue("position", typeof(Vector3));
             normal = (Vector3)info.GetValue("normal", typeof(Vector3));
         }
 
+        // Properties
+        public Vector3 Position
+        {
+            get { return position; }
+            set { position = value; }
+        }
+        public Vector3 Normal
+        {
+            get { return normal; }
+            set { normal = value; }
+        }
+        public static int SizeInBytes
+        {
+            get { return sizeInBytes; }
+        }
+
+        // Methods
+        public override string ToString()
+        {
+            return "Position: {" + position.X + ", " + position.Y + ", " + position.Z + "}\n" +
+                   "Normal:   {" + normal.X + ", " + normal.Y + ", " + normal.Z + "}";
+        }
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("position", position);
@@ -357,23 +369,38 @@ namespace LearnShader
         }
     }
 
+
     class VNPair
     {
+        // Fields
         private int position;
         private int normal;
 
+        // Constructors
         public VNPair(int position, int normal)
         {
             this.position = position;
             this.normal = normal;
         }
-
         public VNPair()
         {
             this.position = 0;
             this.normal = 0;
         }
 
+        // Properties
+        public int P
+        {
+            get { return position; }
+            set { position = value; }
+        }
+        public int N
+        {
+            get { return normal; }
+            set { normal = value; }
+        }
+
+        // Operators
         public static bool operator ==(VNPair pair1, VNPair pair2)
         {
             if (((object)pair1 == null) && ((object)pair2 == null))
@@ -389,7 +416,6 @@ namespace LearnShader
             }
             return false;
         }
-
         public static bool operator !=(VNPair pair1, VNPair pair2)
         {
             if ((pair1.P != pair2.P) || (pair1.N != pair2.N))
@@ -399,38 +425,28 @@ namespace LearnShader
             return false;
         }
 
+        // Methods
         public override string ToString()
         {
             return "{" + this.P + ", " + this.N + "}";
         }
-
         public override bool Equals(object obj)
         {
             return base.Equals(obj);
         }
-
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
-
-        public int P
-        {
-            get { return position; }
-            set { position = value; }
-        }
-
-        public int N
-        {
-            get { return normal; }
-            set { normal = value; }
-        }
     }
+
 
     struct Byte4
     {
+        // Fields
         public byte R, G, B, A;
-
+        
+        // Constructors
         public Byte4(byte[] input)
         {
             R = input[0];
@@ -439,12 +455,12 @@ namespace LearnShader
             A = input[3];
         }
 
+        // Methods
         public uint ToUInt32()
         {
             byte[] temp = new byte[] { this.R, this.G, this.B, this.A };
             return BitConverter.ToUInt32(temp, 0);
         }
-
         public override string ToString()
         {
             return "{R, G, B, A} = { " + this.R + ", " + this.G + ", " + this.B + ", " + this.A + " }";
