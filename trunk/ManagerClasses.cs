@@ -7,104 +7,35 @@ using OpenTK.Graphics;
 
 namespace LearnShader
 {
-    public class ApplicationState
-    {
-        private static ApplicationState instance;
-        RenderState currentState;
-        FrameBufferManager frameBufferManager;
-
-        public event EventHandler<ApplicationStateEventArgs> ApplicationStateEvent;
-
-        // Private Instance Constructor
-        private ApplicationState()
-        {
-            Console.WriteLine("ApplicationState() constructor executed");
-        }
-        static ApplicationState()
-        {
-            instance = new ApplicationState();
-            instance.frameBufferManager = FrameBufferManager.Instance;
-            instance.currentState = RenderState.Render;
-        }
-        public static ApplicationState Instance
-        {
-            get { return instance; }
-        }
-        RenderState CurrentState
-        {
-            get { return currentState; }
-        }
-        public void SetRenderState(RenderState state)
-        {
-            currentState = state;
-            EventHandler<ApplicationStateEventArgs> localHandler = ApplicationStateEvent;
-
-            if (localHandler != null)
-            {
-                if (state == RenderState.Select)
-                {
-                    localHandler(this, new ApplicationStateEventArgs(RenderState.Select));
-                }
-                if (state == RenderState.Render)
-                {
-                    localHandler(this, new ApplicationStateEventArgs(RenderState.Render));
-                }
-            }
-        }
-    }
-
-    public class ApplicationStateEventArgs : EventArgs
-    {
-        RenderState state;
-
-        public ApplicationStateEventArgs(RenderState state)
-        {
-            this.state = state;
-        }
-
-        public RenderState State
-        {
-            get { return state; }
-        }
-    }
-
     public class FrameBufferManager
     {
+        // Fields
         private static FrameBufferManager instance;
         private uint selectionBuffer;
         private uint[] renderBuffer;
         private int viewportWidth, viewportHeight;
+        private RenderState currentState;
 
-        // Private Instance Constructor
+        // Constructors
         private FrameBufferManager()
         {
-            Console.WriteLine("FrameBufferManager() constructor executed");
+            Console.WriteLine("FrameBufferManager() instance constructor executed");
         }
         static FrameBufferManager()
         {
+            // Initialise singleton instance
             instance = new FrameBufferManager();
-
-            //ApplicationState.Instance.ApplicationStateEvent += new EventHandler<ApplicationStateEventArgs>(instance.Instance_ApplicationStateEvent);
 
             // This is where we initialise the GL FrameBuffers and RenderBuffers.
             instance.renderBuffer = new uint[(int)RenderBuffer.NumRenderBuffers];
             GL.GenRenderbuffers((int)RenderBuffer.NumRenderBuffers, instance.renderBuffer);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, instance.renderBuffer[(int)RenderBuffer.Color]);
 
             int[] viewport = new int[4];
             GL.GetInteger(GetPName.Viewport, viewport);
             instance.viewportWidth = viewport[2];
             instance.viewportHeight = viewport[3];
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
-                                   RenderbufferStorage.Rgba8,
-                                   instance.viewportWidth,
-                                   instance.viewportHeight);
 
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, instance.renderBuffer[(int)RenderBuffer.Depth]);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
-                                   RenderbufferStorage.DepthComponent24,
-                                   instance.viewportWidth,
-                                   instance.viewportHeight);
+            SetRenderbufferStorage(instance.viewportWidth, instance.viewportHeight);
 
             GL.GenFramebuffers(1, out instance.selectionBuffer);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
@@ -117,58 +48,81 @@ namespace LearnShader
                                        RenderbufferTarget.Renderbuffer,
                                        instance.renderBuffer[(int)RenderBuffer.Depth]);
 
-            GL.Enable(EnableCap.DepthTest);
-
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }
-        /*
-        private void Instance_ApplicationStateEvent(object sender, ApplicationStateEventArgs e)
-        {
-            if (e.State == RenderState.Select)
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
-            
-            if (e.State == RenderState.Render)
-                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-        }
-         * 
-         */
 
+        // Properties
         public static FrameBufferManager Instance
         {
             get { return instance; }
         }
-        public uint ColorBuffer
+        public RenderState CurrentState
         {
-            get { return renderBuffer[(uint)RenderBuffer.Color]; }
+            get { return currentState; }
         }
-        public uint DepthBuffer
+
+        // Methods
+        private static void SetRenderbufferStorage(int width, int height)
         {
-            get { return renderBuffer[(uint)RenderBuffer.Depth]; }
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, instance.renderBuffer[(int)RenderBuffer.Color]);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
+                                   RenderbufferStorage.Rgba8,
+                                   width,
+                                   height);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, instance.renderBuffer[(int)RenderBuffer.Depth]);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer,
+                                   RenderbufferStorage.DepthComponent24,
+                                   width,
+                                   height);
         }
-        public uint SelectionBuffer
+        public void UpdateSelectionViewport(int width, int height)
         {
-            get { return selectionBuffer; }
+            viewportWidth = width;
+            viewportHeight = height;
+            SetRenderbufferStorage(width, height);
+        }
+        public void BindFBO(RenderState buffer)
+        {
+            if (buffer == RenderState.Select)
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
+            if (buffer == RenderState.Render)
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        }
+        public void ReadFBO(RenderState buffer)
+        {
+            if (buffer == RenderState.Select)
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, instance.selectionBuffer);
+            if (buffer == RenderState.Render)
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, 0);
         }
     }
     
 
     public sealed class PickRegister
     {
+        // Fields
         private static readonly PickRegister instance = new PickRegister();
         private Dictionary<int, ISelectable> register = new Dictionary<int, ISelectable>();
         private static int nextId = 8000000;
 
+        // Constructors
+        private PickRegister()
+        {
+        }
+
+        // Properties
+        public static PickRegister Instance
+        {
+            get { return instance; }
+        }
+
+        // Methods
         public int GetId(ISelectable selectableRef)
         {
             nextId = nextId + 100000;
             register.Add(nextId, selectableRef);
-
             return nextId;
-        }
-        public void Remove(int key)
-        {
-            register.Remove(key);
         }
         public ISelectable LookupSelectable(int id)
         {
@@ -176,13 +130,10 @@ namespace LearnShader
                 return register[id];
             return null;
         }
-        private PickRegister()
+        public void Remove(int key)
         {
-        }
-        public static PickRegister Instance
-        {
-            get { return instance; }
-        }
+            register.Remove(key);
+        }        
     }
 
 
@@ -191,8 +142,6 @@ namespace LearnShader
         Render,
         Select
     }
-
-
     public enum RenderBuffer
     {
         Color,

@@ -8,27 +8,16 @@ namespace LearnShader
 {
     public sealed class Shader
     {
+        // Static Fields
+        private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
+        private static Shader selectionShader;
+        
+        // Instance Fields
         private int shaderID;
         private int vertexShader;
         private int fragmentShader;
 
-        //This dictionary keeps track of all Shaders created, so that duplicates can be avoided. (Note it is static)
-        private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
-
-
-        public int ShaderID
-        {
-            get { return shaderID; }
-        }
-
-        public static Shader CreateShader(string vsFileName, string fsFileName, string shaderName)
-        {
-            if (shaderRegister.ContainsKey(shaderName))
-                return shaderRegister[shaderName];
-
-            return new Shader(vsFileName, fsFileName, shaderName);
-        }
-
+        // Constructors
         private Shader(string vsFileName, string fsFileName, string shaderName)
         {
             shaderRegister.Add(shaderName, this);
@@ -57,16 +46,20 @@ namespace LearnShader
             ValidateProgram(shaderID);
         }
 
-        public void Bind()
+        // Properties
+        public int ShaderID
         {
-            GL.UseProgram(shaderID);
+            get { return shaderID; }
         }
 
-        public void UnBind()
+        // Static Methods
+        public static Shader CreateShader(string vsFileName, string fsFileName, string shaderName)
         {
-            GL.UseProgram(0);
-        }
+            if (shaderRegister.ContainsKey(shaderName))
+                return shaderRegister[shaderName];
 
+            return new Shader(vsFileName, fsFileName, shaderName);
+        }
         static void ValidateShader(int shader, string fileName)
         {
             string outputBuffer = string.Empty;
@@ -78,7 +71,6 @@ namespace LearnShader
                 Console.Write("--Shader {0}, file {1} Validated\n", shader, fileName);
 
         }
-
         static void ValidateProgram(int program)
         {
             string outputBuffer = string.Empty;
@@ -95,6 +87,16 @@ namespace LearnShader
 
             if (status != 1)
                 Console.WriteLine("--Error validating shader");
+        }
+
+        // Instance Methods
+        public void Bind()
+        {
+            GL.UseProgram(shaderID);
+        }
+        public void UnBind()
+        {
+            GL.UseProgram(0);
         }
     }
 }
