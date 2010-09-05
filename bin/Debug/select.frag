@@ -12,5 +12,5 @@ out vec3 fragColor;
 void main(void)
 {
 	float lightIntensity = 0.5 * dot(lightPositionNormalized, normal) + 1;
-	fragColor = lightIntensity * vec3(surfaceColor);
+	fragColor = vec3(surfaceColor);
 }

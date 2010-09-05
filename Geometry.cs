@@ -13,7 +13,6 @@ namespace LearnShader
     {
         int Id { get; }
         bool IsSelected { get; }
-        
     }
 
 
@@ -231,6 +230,10 @@ namespace LearnShader
         private bool isSelected;
 
         // Constructors
+        static Cube()
+        {
+            cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
+        }        
         public Cube(Vector3 position, Vector3 rotation, Color4 color)
         {
             this.position = position;
@@ -255,11 +258,6 @@ namespace LearnShader
 
             surfaceColorLocation = GL.GetUniformLocation(cubeShader.ShaderID, "surfaceColor");
             modelviewMatrixLocation = GL.GetUniformLocation(cubeShader.ShaderID, "modelview_matrix");
-        }
-
-        static Cube()
-        {
-            cubeShader = Shader.CreateShader("cube.vert", "cube.frag", name);
         }
 
         // Properties
@@ -300,13 +298,12 @@ namespace LearnShader
         {
             if (fbManager.CurrentState == RenderState.Select)
             {
-                // Bind selectionShader
+                Shader.selectionShader.Bind();
             }
             if (fbManager.CurrentState == RenderState.Render)
             {
-                // Bind cubeShader
+                cubeShader.Bind();
             }
-
             modelviewMatrix = Matrix4.CreateRotationX(rotation.X) *
                               Matrix4.CreateRotationY(rotation.Y) *
                               Matrix4.CreateRotationZ(rotation.Z) *

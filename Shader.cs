@@ -10,7 +10,7 @@ namespace LearnShader
     {
         // Static Fields
         private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
-        private static Shader selectionShader;
+        public static Shader selectionShader;
         
         // Instance Fields
         private int shaderID;
@@ -18,6 +18,14 @@ namespace LearnShader
         private int fragmentShader;
 
         // Constructors
+        static Shader()
+        {
+            selectionShader = new Shader("select.vert", "select.frag", "select");
+            selectionShader.Bind();
+
+            // TODO: Allocate the correct shader variables here
+
+        }
         private Shader(string vsFileName, string fsFileName, string shaderName)
         {
             shaderRegister.Add(shaderName, this);
