@@ -26,28 +26,31 @@
       <Entity type="Class">
         <Name>Cube</Name>
         <Access>Public</Access>
-        <Location left="576" top="813" />
-        <Size width="348" height="434" />
+        <Location left="571" top="330" />
+        <Size width="348" height="468" />
         <Collapsed>False</Collapsed>
-        <Member type="Field">private string name</Member>
+        <Member type="Field">private static Shader cubeShader</Member>
+        <Member type="Field">private static string name</Member>
+        <Member type="Field">private static FrameBufferManager fbManager</Member>
         <Member type="Field">private Color4 color</Member>
         <Member type="Field">private Vector3 position</Member>
         <Member type="Field">private Vector3 rotation</Member>
-        <Member type="Field">private int id</Member>
-        <Member type="Field">private string sourceFile</Member>
         <Member type="Field">private Mesh cubeMesh</Member>
-        <Member type="Field">private Shader cubeShader</Member>
-        <Member type="Field">private PickRegister register</Member>
+        <Member type="Field">private string sourceFile</Member>
         <Member type="Field">private int surfaceColorLocation</Member>
         <Member type="Field">private Matrix4 modelviewMatrix</Member>
         <Member type="Field">private int modelviewMatrixLocation</Member>
-        <Member type="Field">ApplicationState appState</Member>
+        <Member type="Field">private int id</Member>
+        <Member type="Field">private bool isSelected</Member>
+        <Member type="Constructor">static Cube()</Member>
         <Member type="Constructor">public Cube(Vector3 position, Vector3 rotation, Color4 color)</Member>
         <Member type="Property">public Vector3 Position { get; set; }</Member>
         <Member type="Property">public Vector3 Rotation { get; set; }</Member>
         <Member type="Property">public Color4 Color { get; set; }</Member>
         <Member type="Property">public int ShaderID { get; set; }</Member>
         <Member type="Property">public int Id { get; set; }</Member>
+        <Member type="Property">public bool IsSelected { get; }</Member>
+        <Member type="Method">private void registerCube()</Member>
         <Member type="Method">public void Draw()</Member>
         <Modifier>None</Modifier>
       </Entity>
@@ -63,26 +66,30 @@
       <Entity type="Class">
         <Name>Game</Name>
         <Access>Public</Access>
-        <Location left="57" top="645" />
-        <Size width="401" height="366" />
+        <Location left="35" top="398" />
+        <Size width="401" height="434" />
         <Collapsed>False</Collapsed>
-        <Member type="Field">Cube cube</Member>
         <Member type="Field">public int projectionMatrixLocation</Member>
-        <Member type="Field">int lightPositionLocation</Member>
         <Member type="Field">Matrix4 projectionMatrix</Member>
         <Member type="Field">Vector3 lightPosition</Member>
+        <Member type="Field">int lightPositionLocation</Member>
+        <Member type="Field">Cube cube</Member>
         <Member type="Field">Cube[] cubeArray</Member>
         <Member type="Field">Random randomNumber</Member>
         <Member type="Field">Vector3 randomVector</Member>
         <Member type="Field">Vector3 randomRotation</Member>
+        <Member type="Field">FrameBufferManager fbManager</Member>
+        <Member type="Field">int clearColor</Member>
         <Member type="Constructor">public Game()</Member>
-        <Member type="Method">public void MouseButtonDown(object sender, MouseButtonEventArgs e)</Member>
-        <Member type="Method">private void QueryMatrixLocation()</Member>
-        <Member type="Method">private void SetProjectionMatrix(Matrix matrix)</Member>
-        <Member type="Method">private void SetLightPosition(Vector3 light)</Member>
         <Member type="Method">protected override void OnUpdateFrame(FrameEventArgs e)</Member>
         <Member type="Method">protected override void OnRenderFrame(FrameEventArgs e)</Member>
         <Member type="Method">protected override void OnResize(EventArgs e)</Member>
+        <Member type="Method">private void QueryMatrixLocation()</Member>
+        <Member type="Method">private void SetProjectionMatrix(Matrix matrix)</Member>
+        <Member type="Method">private void SetLightPosition(Vector3 light)</Member>
+        <Member type="Method">public void MouseButtonDown(object sender, MouseButtonEventArgs e)</Member>
+        <Member type="Method">private void DrawScene(RenderState state)</Member>
+        <Member type="Method">private ISelectable PickColor(int x, int y)</Member>
         <Modifier>None</Modifier>
       </Entity>
       <Entity type="Structure">
@@ -104,7 +111,7 @@
       <Entity type="Class">
         <Name>Mesh</Name>
         <Access>Public</Access>
-        <Location left="1041" top="929" />
+        <Location left="1036" top="219" />
         <Size width="332" height="292" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static Dictionary&lt;string, Mesh&gt; meshRegister</Member>
@@ -138,7 +145,7 @@
       <Entity type="Class">
         <Name>PickRegister</Name>
         <Access>Public</Access>
-        <Location left="1102" top="52" />
+        <Location left="226" top="38" />
         <Size width="250" height="216" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static readonly PickRegister instance</Member>
@@ -147,49 +154,34 @@
         <Member type="Constructor">private PickRegister()</Member>
         <Member type="Property">public static PickRegister Instance { get; }</Member>
         <Member type="Method">public int GetID(ISelectable selectableRef)</Member>
-        <Member type="Method">public void Remove(int key)</Member>
         <Member type="Method">public ISelectable LookupSelectable(int id)</Member>
+        <Member type="Method">public void Remove(int key)</Member>
         <Modifier>Sealed</Modifier>
       </Entity>
       <Entity type="Enum">
         <Name>RenderState</Name>
         <Access>Public</Access>
-        <Location left="129" top="311" />
+        <Location left="371" top="852" />
         <Size width="162" height="112" />
         <Collapsed>False</Collapsed>
         <Value>Select</Value>
         <Value>Render</Value>
       </Entity>
       <Entity type="Class">
-        <Name>ApplicationState</Name>
-        <Access>Public</Access>
-        <Location left="129" top="52" />
-        <Size width="274" height="213" />
-        <Collapsed>False</Collapsed>
-        <Member type="Field">private static readonly ApplicationState instance</Member>
-        <Member type="Field">private RenderState currentState</Member>
-        <Member type="Field">FrameBufferManager frameBufferManager</Member>
-        <Member type="Constructor">static ApplicationState()</Member>
-        <Member type="Constructor">private ApplicationState()</Member>
-        <Member type="Property">public ApplicationState Instance { get; }</Member>
-        <Member type="Property">public RenderState CurrentState { get; }</Member>
-        <Member type="Method">public void SetRenderState(RenderState state)</Member>
-        <Modifier>Sealed</Modifier>
-      </Entity>
-      <Entity type="Class">
         <Name>Shader</Name>
         <Access>Public</Access>
-        <Location left="1041" top="623" />
-        <Size width="332" height="264" />
+        <Location left="1036" top="610" />
+        <Size width="332" height="281" />
         <Collapsed>False</Collapsed>
+        <Member type="Field">private static Dictionary&lt;string, Shader&gt; shaderRegister</Member>
+        <Member type="Field">private static Shader selectionShader</Member>
         <Member type="Field">private int shaderID</Member>
         <Member type="Field">private int vertexShader</Member>
         <Member type="Field">private int fragmentShader</Member>
-        <Member type="Field">private static Dictionary&lt;string, Shader&gt; shaderRegister</Member>
-        <Member type="Property">public int ShaderID { get; set; }</Member>
         <Member type="Constructor">private Shader()</Member>
-        <Member type="Method">static void ValidateShader()</Member>
+        <Member type="Property">public int ShaderID { get; set; }</Member>
         <Member type="Method">public static Shader CreateShader()</Member>
+        <Member type="Method">static void ValidateShader()</Member>
         <Member type="Method">static void ValidateProgram()</Member>
         <Member type="Method">public void Bind()</Member>
         <Member type="Method">public void UnBind()</Member>
@@ -198,25 +190,29 @@
       <Entity type="Class">
         <Name>FrameBufferManager</Name>
         <Access>Public</Access>
-        <Location left="608" top="52" />
-        <Size width="316" height="247" />
+        <Location left="571" top="852" />
+        <Size width="337" height="315" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static FrameBufferManager instance</Member>
-        <Member type="Field">uint frameBuffer</Member>
+        <Member type="Field">uint selectionBuffer</Member>
         <Member type="Field">uint[] renderBuffer</Member>
         <Member type="Field">int viewportWidth</Member>
         <Member type="Field">int viewportHeight</Member>
+        <Member type="Field">private RenderState currentState</Member>
         <Member type="Constructor">static FrameBufferManager()</Member>
         <Member type="Constructor">private FrameBufferManager()</Member>
         <Member type="Property">public FrameBufferManager Instance { get; }</Member>
-        <Member type="Property">public uint ColorBuffer { get; }</Member>
-        <Member type="Property">public uint DepthBuffer { get; }</Member>
+        <Member type="Property">public RenderState CurrentState { get; }</Member>
+        <Member type="Method">private static void SetRenderbufferStorage(int width, int height)</Member>
+        <Member type="Method">public void UpdateSelectionViewport(int width, int height)</Member>
+        <Member type="Method">public void BindFBO(RenderState buffer)</Member>
+        <Member type="Method">public void ReadFBO(RenderState buffer)</Member>
         <Modifier>None</Modifier>
       </Entity>
       <Entity type="Enum">
         <Name>RenderBuffer</Name>
         <Access>Public</Access>
-        <Location left="608" top="340" />
+        <Location left="693" top="1262" />
         <Size width="162" height="112" />
         <Collapsed>False</Collapsed>
         <Value>Color</Value>
@@ -226,26 +222,26 @@
       <Entity type="Interface">
         <Name>ISelectable</Name>
         <Access>Public</Access>
-        <Location left="576" top="521" />
-        <Size width="210" height="216" />
+        <Location left="636" top="127" />
+        <Size width="210" height="109" />
         <Collapsed>False</Collapsed>
         <Member type="Property">int Id { get; set; }</Member>
         <Member type="Property">bool IsSelected { get; set; }</Member>
       </Entity>
     </Entities>
     <Relationships>
-      <Relationship type="Association" first="1" second="10">
+      <Relationship type="Association" first="1" second="9">
         <Label>
         </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>976</X>
-          <Y>880</Y>
+          <X>965</X>
+          <Y>683</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1013</X>
-          <Y>824</Y>
+          <X>1009</X>
+          <Y>683</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -257,12 +253,12 @@
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>958</X>
-          <Y>965</Y>
+          <X>950</X>
+          <Y>505</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1016</X>
-          <Y>1020</Y>
+          <X>1011</X>
+          <Y>310</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -274,8 +270,12 @@
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>1393</X>
-          <Y>219</Y>
+          <X>517</X>
+          <Y>205</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>399</X>
+          <Y>279</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -286,128 +286,94 @@
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>483</X>
-          <Y>765</Y>
+          <X>461</X>
+          <Y>518</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>525</X>
-          <Y>963</Y>
+          <X>517</X>
+          <Y>518</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
         <StartRole>has</StartRole>
         <EndMultiplicity>*</EndMultiplicity>
       </Relationship>
-      <Relationship type="Association" first="9" second="9">
-        <StartOrientation>Horizontal</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>84</X>
-          <Y>192</Y>
-        </BendPoint>
-        <BendPoint relativeToStartShape="False">
-          <X>209</X>
-          <Y>290</Y>
-        </BendPoint>
-        <Direction>Bidirectional</Direction>
-        <AssociationType>Aggregation</AssociationType>
-        <StartRole>has</StartRole>
-        <EndMultiplicity>1</EndMultiplicity>
-      </Relationship>
-      <Relationship type="Association" first="11" second="11">
+      <Relationship type="Association" first="10" second="10">
         <Label>
         </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>971</X>
-          <Y>192</Y>
+          <X>965</X>
+          <Y>1130</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>883</X>
-          <Y>324</Y>
+          <X>831</X>
+          <Y>1192</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
         <StartRole>has</StartRole>
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
-      <Relationship type="Nesting" first="11" second="12">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>809</X>
-          <Y>402</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Nesting" first="9" second="8">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Horizontal</EndOrientation>
-        <BendPoint relativeToStartShape="True">
-          <X>330</X>
-          <Y>295</Y>
-        </BendPoint>
-        <BendPoint relativeToStartShape="False">
-          <X>321</X>
-          <Y>337</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Association" first="1" second="11">
+      <Relationship type="Nesting" first="10" second="11">
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>845</X>
-          <Y>735</Y>
+          <X>781</X>
+          <Y>1204</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>845</X>
-          <Y>339</Y>
+          <X>781</X>
+          <Y>1237</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Association" first="1" second="10">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>811</X>
+          <Y>823</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>811</X>
+          <Y>804</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
       </Relationship>
-      <Relationship type="Association" first="9" second="11">
-        <StartOrientation>Horizontal</StartOrientation>
+      <Relationship type="Realization" first="1" second="12">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="True">
+          <X>742</X>
+          <Y>305</Y>
+        </BendPoint>
+        <BendPoint relativeToStartShape="False">
+          <X>742</X>
+          <Y>264</Y>
+        </BendPoint>
+      </Relationship>
+      <Relationship type="Association" first="9" second="10">
+        <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>428</X>
-          <Y>201</Y>
+          <X>1133</X>
+          <Y>929</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>559</X>
-          <Y>201</Y>
+          <X>938</X>
+          <Y>935</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
       </Relationship>
-      <Relationship type="Association" first="3" second="9">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>372</X>
-          <Y>290</Y>
-        </BendPoint>
-        <Direction>Unidirectional</Direction>
-        <AssociationType>Association</AssociationType>
-      </Relationship>
-      <Relationship type="Realization" first="1" second="13">
-        <StartOrientation>Vertical</StartOrientation>
-        <EndOrientation>Vertical</EndOrientation>
-        <BendPoint relativeToStartShape="False">
-          <X>666</X>
-          <Y>762</Y>
-        </BendPoint>
-      </Relationship>
-      <Relationship type="Association" first="13" second="7">
+      <Relationship type="Association" first="1" second="7">
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>909</X>
-          <Y>541</Y>
-        </BendPoint>
-        <BendPoint relativeToStartShape="False">
-          <X>1138</X>
-          <Y>436</Y>
+          <X>543</X>
+          <Y>357</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>

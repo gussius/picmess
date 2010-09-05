@@ -14,15 +14,15 @@ namespace LearnShader
     {
         // Fields
         public int projectionMatrixLocation;
-        int lightPositionLocation;
         Matrix4 projectionMatrix;
         Vector3 lightPosition;
+        int lightPositionLocation;
+        Cube cube;
         Cube[] cubeArray;
         Random randomNumber;
         Vector3 randomVector;
         Vector3 randomRotation;
         FrameBufferManager fbManager;
-        Cube cube;
         int clearColor;
 
         // Constructors
@@ -123,6 +123,7 @@ namespace LearnShader
             fbManager.ReadFBO(RenderState.Select);
             Byte4 pixel = new Byte4();
             GL.ReadPixels(x, this.Height - y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
+            Console.WriteLine("{0}", pixel.ToString());
             Cube selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32());
             if (selected != null)
             {

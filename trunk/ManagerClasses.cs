@@ -17,10 +17,6 @@ namespace LearnShader
         private RenderState currentState;
 
         // Constructors
-        private FrameBufferManager()
-        {
-            Console.WriteLine("FrameBufferManager() instance constructor executed");
-        }
         static FrameBufferManager()
         {
             // Initialise singleton instance
@@ -50,6 +46,10 @@ namespace LearnShader
 
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+        }        
+        private FrameBufferManager()
+        {
+            Console.WriteLine("FrameBufferManager() instance constructor executed");
         }
 
         // Properties
@@ -85,9 +85,15 @@ namespace LearnShader
         public void BindFBO(RenderState buffer)
         {
             if (buffer == RenderState.Select)
+            {
+                currentState = RenderState.Select;
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, instance.selectionBuffer);
+            }
             if (buffer == RenderState.Render)
+            {
+                currentState = RenderState.Render;
                 GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+            }
         }
         public void ReadFBO(RenderState buffer)
         {
