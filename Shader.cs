@@ -10,22 +10,17 @@ namespace LearnShader
     {
         // Static Fields
         private static Dictionary<string, Shader> shaderRegister = new Dictionary<string, Shader>();
-        public static Shader selectionShader;
-        
+        private static Matrix4 projectionMatrix;
+        private static Vector3 lightPosition;
+    
         // Instance Fields
         private int shaderID;
         private int vertexShader;
         private int fragmentShader;
+        private int projectionMatrixLocation;
+        private int lightPositionLocation;
 
         // Constructors
-        static Shader()
-        {
-            selectionShader = new Shader("select.vert", "select.frag", "select");
-            selectionShader.Bind();
-
-            // TODO: Allocate the correct shader variables here
-
-        }
         private Shader(string vsFileName, string fsFileName, string shaderName)
         {
             shaderRegister.Add(shaderName, this);
@@ -52,6 +47,17 @@ namespace LearnShader
             GL.AttachShader(shaderID, fragmentShader);
             GL.LinkProgram(shaderID);
             ValidateProgram(shaderID);
+
+            this.Bind();
+
+            projectionMatrixLocation = GL.GetUniformLocation(this.ShaderID, "projection_matrix");
+            Console.WriteLine("projectionMatrixLocation = {0}", projectionMatrixLocation);
+
+            lightPositionLocation = GL.GetUniformLocation(this.ShaderID, "lightPosition");
+            Console.WriteLine("lightPositionLocation = {0}", lightPositionLocation);
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
+            GL.Uniform3(lightPositionLocation, ref lightPosition);
+            this.UnBind();
         }
 
         // Properties
@@ -95,6 +101,14 @@ namespace LearnShader
 
             if (status != 1)
                 Console.WriteLine("--Error validating shader");
+        }
+        public static void SetProjectionMatrix(Matrix4 matrix)
+        {
+            projectionMatrix = matrix;
+        }
+        public static void SetLightPosition(Vector3 light)
+        {
+            lightPosition = light;
         }
 
         // Instance Methods
