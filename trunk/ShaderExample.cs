@@ -13,17 +13,12 @@ namespace LearnShader
     public class Game : GameWindow
     {
         // Fields
-        public int projectionMatrixLocation;
-        Matrix4 projectionMatrix;
-        Vector3 lightPosition;
-        int lightPositionLocation;
-        Cube cube;
         Cube[] cubeArray;
         Random randomNumber;
         Vector3 randomVector;
         Vector3 randomRotation;
         FrameBufferManager fbManager;
-        int clearColor;
+        bool showingSelectBuffer = false;
 
         // Constructors
         public Game()
@@ -31,12 +26,11 @@ namespace LearnShader
                    "OpenGL 3.1 Example", 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
         {
             // Retrieve references to shader variables.
-            QueryMatrixLocations();
-            SetLightPosition(new Vector3(3.0f, 4.0f, 5.0f));
+            Shader.SetLightPosition(new Vector3(3.0f, 4.0f, 5.0f));
 
             // Setup window view.
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.25f, widthToHeight, 60, 120));
+            Shader.SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.25f, widthToHeight, 60, 120));
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
 
@@ -75,35 +69,33 @@ namespace LearnShader
             {
                 Exit();
             }
+            if (Keyboard[OpenTK.Input.Key.Z])
+            {
+                showingSelectBuffer = true;
+            }
+            if (Keyboard[OpenTK.Input.Key.A])
+            {
+                showingSelectBuffer = false;
+            }
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             DrawScene(RenderState.Render);
+            if (showingSelectBuffer == true)
+            {
+                fbManager.ReadFBO(RenderState.Select);
+                GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+            }
             GL.Flush();
             SwapBuffers();
         }
         protected override void OnResize(EventArgs e)
         {
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
-            SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
+            Shader.SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
             GL.Viewport(0, 0, Width, Height);
             fbManager.UpdateSelectionViewport(Width, Height);
         }        
-        private void QueryMatrixLocations()
-        {
-            projectionMatrixLocation = GL.GetUniformLocation(Cube.ShaderID, "projection_matrix");
-            lightPositionLocation = GL.GetUniformLocation(Cube.ShaderID, "lightPosition");
-        }
-        private void SetProjectionMatrix(Matrix4 matrix)
-        {
-            projectionMatrix = matrix;
-            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
-        }
-        private void SetLightPosition(Vector3 light)
-        {
-            lightPosition = light;
-            GL.Uniform3(lightPositionLocation, ref lightPosition);
-        }
         private void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickColor(e.X, e.Y);

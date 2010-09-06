@@ -83,6 +83,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cube.cs" />
     <Compile Include="ManagerClasses.cs" />
     <Compile Include="Geometry.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
