@@ -21,12 +21,14 @@ namespace LearnShader
         private int lightPositionLocation;
 
         // Constructors
+        static Shader()
+        {
+            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            Console.WriteLine("--Shader Version = {0}\n", shaderVersion);
+        }
         private Shader(string vsFileName, string fsFileName, string shaderName)
         {
             shaderRegister.Add(shaderName, this);
-
-            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
-            Console.WriteLine("--Shader Version = {0}", shaderVersion);
 
             vertexShader = GL.CreateShader(ShaderType.VertexShader);
             fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
@@ -47,17 +49,6 @@ namespace LearnShader
             GL.AttachShader(shaderID, fragmentShader);
             GL.LinkProgram(shaderID);
             ValidateProgram(shaderID);
-
-            this.Bind();
-
-            projectionMatrixLocation = GL.GetUniformLocation(this.ShaderID, "projection_matrix");
-            Console.WriteLine("projectionMatrixLocation = {0}", projectionMatrixLocation);
-
-            lightPositionLocation = GL.GetUniformLocation(this.ShaderID, "lightPosition");
-            Console.WriteLine("lightPositionLocation = {0}", lightPositionLocation);
-            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
-            GL.Uniform3(lightPositionLocation, ref lightPosition);
-            this.UnBind();
         }
 
         // Properties
@@ -74,7 +65,7 @@ namespace LearnShader
 
             return new Shader(vsFileName, fsFileName, shaderName);
         }
-        static void ValidateShader(int shader, string fileName)
+        private static void ValidateShader(int shader, string fileName)
         {
             string outputBuffer = string.Empty;
             outputBuffer = GL.GetShaderInfoLog(shader);
@@ -85,22 +76,22 @@ namespace LearnShader
                 Console.Write("--Shader {0}, file {1} Validated\n", shader, fileName);
 
         }
-        static void ValidateProgram(int program)
+        private static void ValidateProgram(int program)
         {
             string outputBuffer = string.Empty;
             outputBuffer = GL.GetProgramInfoLog(program);
 
             if (outputBuffer != string.Empty)
-                Console.Write("--Program {0} linking error: {1}\n", program, outputBuffer);
+                Console.Write("--Program {0} linking error: {1}\n\n", program, outputBuffer);
             else
-                Console.Write("--Program {0} Validated\n", program);
+                Console.Write("--Program {0} Validated\n\n", program);
 
             GL.ValidateProgram(program);
             int status;
             GL.GetProgram(program, ProgramParameter.ValidateStatus, out status);
 
             if (status != 1)
-                Console.WriteLine("--Error validating shader");
+                Console.WriteLine("--Error validating shader\n\n");
         }
         public static void SetProjectionMatrix(Matrix4 matrix)
         {
@@ -115,6 +106,10 @@ namespace LearnShader
         public void Bind()
         {
             GL.UseProgram(shaderID);
+            projectionMatrixLocation = GL.GetUniformLocation(this.ShaderID, "projection_matrix");
+            lightPositionLocation = GL.GetUniformLocation(this.ShaderID, "lightPosition");
+            GL.UniformMatrix4(projectionMatrixLocation, false, ref projectionMatrix);
+            GL.Uniform3(lightPositionLocation, ref lightPosition);
         }
         public void UnBind()
         {

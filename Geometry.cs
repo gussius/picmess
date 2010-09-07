@@ -78,7 +78,7 @@ namespace LearnShader
 
             using (StreamReader tr = new StreamReader(objFileName))
             {
-                Console.WriteLine("--Loading {0}", objFileName);
+                Console.WriteLine("--Loading {0}\n", objFileName);
 
                 // initialise the array counters
                 v = 0; vn = 0; vt = 0; f = 0;

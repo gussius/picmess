@@ -47,10 +47,6 @@ namespace LearnShader
             // Set back to default FrameBuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
         }        
-        private FrameBufferManager()
-        {
-            Console.WriteLine("FrameBufferManager() instance constructor executed");
-        }
 
         // Properties
         public static FrameBufferManager Instance
@@ -110,7 +106,7 @@ namespace LearnShader
         // Fields
         private static readonly PickRegister instance = new PickRegister();
         private Dictionary<int, ISelectable> register = new Dictionary<int, ISelectable>();
-        private static int nextId = 8000000;
+        private static int nextId = 350; //start at 350 so id colors are visible.
 
         // Constructors
         private PickRegister()
@@ -126,7 +122,7 @@ namespace LearnShader
         // Methods
         public int GetId(ISelectable selectableRef)
         {
-            nextId = nextId + 100000;
+            nextId = nextId + 10; // Add 10 each time so that id colors look different.
             register.Add(nextId, selectableRef);
             return nextId;
         }
