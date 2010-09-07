@@ -3,11 +3,9 @@ precision mediump float;
 
 uniform mat4 modelview_matrix; 
 uniform mat4 projection_matrix;
-
 in vec3 vertex_position;
 in vec3 vertex_normal;
 in vec3 lightPosition;
-
 out vec3 normal;
 out vec3 lightPositionNormalized;
  

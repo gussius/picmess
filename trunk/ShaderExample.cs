@@ -26,11 +26,12 @@ namespace LearnShader
                    "OpenGL 3.1 Example", 0, DisplayDevice.Default, 3, 1, GraphicsContextFlags.Debug)
         {
             // Retrieve references to shader variables.
-            Shader.SetLightPosition(new Vector3(3.0f, 4.0f, 5.0f));
+
 
             // Setup window view.
             float widthToHeight = ClientSize.Width / (float)ClientSize.Height;
             Shader.SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.25f, widthToHeight, 60, 120));
+            Shader.SetLightPosition(new Vector3(3.0f, 4.0f, 5.0f));
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
 
@@ -55,7 +56,6 @@ namespace LearnShader
 
             // Create references to the manager classes singletons.
             fbManager = FrameBufferManager.Instance;
-
         }
 
         // Methods
@@ -103,6 +103,12 @@ namespace LearnShader
         private void DrawScene(RenderState state)
         {
             fbManager.BindFBO(state);
+            if (state == RenderState.Render)
+                GL.ClearColor(0.2f, 0.2f, 0.2f, 1);
+            else
+                if (state == RenderState.Select)
+                    GL.ClearColor(0.0f, 0.0f, 0.0f, 0);
+
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (Cube sample in cubeArray)
             {
@@ -115,13 +121,20 @@ namespace LearnShader
             fbManager.ReadFBO(RenderState.Select);
             Byte4 pixel = new Byte4();
             GL.ReadPixels(x, this.Height - y, 1, 1, PixelFormat.Rgba, PixelType.UnsignedByte, ref pixel);
-            Console.WriteLine("{0}", pixel.ToString());
             Cube selected = (Cube)PickRegister.Instance.LookupSelectable((int)pixel.ToUInt32());
             if (selected != null)
             {
-                selected.Color = new Color4(0.5f, 0.5f, 0.5f, 1.0f);
+                if (selected.IsSelected == true)
+                {
+                    selected.IsSelected = false;
+                    Console.WriteLine("Cube Id#{0} unselected", selected.Id);
+                }
+                else
+                {
+                    selected.IsSelected = true;
+                    Console.WriteLine("Cube Id#{0} selected", selected.Id);
+                }
             }
-
             return selected;
         }
     }

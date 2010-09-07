@@ -3,7 +3,6 @@ precision mediump float;
 
 uniform mat4 modelview_matrix; 
 uniform mat4 projection_matrix;
-
 in vec3 vertex_position;
  
 void main(void)
