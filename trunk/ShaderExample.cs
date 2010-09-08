@@ -19,6 +19,7 @@ namespace LearnShader
         Vector3 randomRotation;
         FrameBufferManager fbManager;
         bool showingSelectBuffer = false;
+        FullScreenQuad FSQuad;
 
         // Constructors
         public Game()
@@ -40,7 +41,12 @@ namespace LearnShader
             
 
             //  ------- Sandbox -------
-            
+
+            FSQuad = new FullScreenQuad(ClientSize.Width, ClientSize.Height);
+            FSQuad.AddText("Hello World");
+            FSQuad.uploadTexture(ClientSize.Width, ClientSize.Height);
+
+
             // Initialise objects to be drawn in the scene.
             
             randomNumber = new Random();
