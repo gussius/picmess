@@ -12,7 +12,6 @@ namespace LearnShader
     class Mesh
     {
         // Static Fields
-        private static bool drawn = false;
         private static Dictionary<string, Mesh> meshRegister = new Dictionary<string, Mesh>();
 
         // Instance Fields
@@ -58,11 +57,6 @@ namespace LearnShader
         {
             GL.DrawElements(BeginMode.Triangles, indexArray.Length,
                             DrawElementsType.UnsignedInt, IntPtr.Zero);
-            if (!drawn)
-            {
-                Console.WriteLine("--Mesh Being Drawn");
-                drawn = true;
-            }
         }
         public void LoadObjFile(string objFileName)
         {
