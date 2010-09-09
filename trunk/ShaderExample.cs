@@ -44,6 +44,8 @@ namespace LearnShader
 
             FSQuad = new FullScreenQuad(ClientSize.Width, ClientSize.Height);
             FSQuad.AddText("Hello World");
+            FSQuad.AddText("Whats up my peeps, here is some more text to fill up the screen");
+            
             FSQuad.uploadTexture(ClientSize.Width, ClientSize.Height);
 
 
@@ -87,11 +89,14 @@ namespace LearnShader
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             DrawScene(RenderState.Render);
-            if (showingSelectBuffer == true)
+            if (showingSelectBuffer)
             {
                 fbManager.ReadFBO(RenderState.Select);
                 GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
             }
+
+            FSQuad.Draw();
+
             GL.Flush();
             SwapBuffers();
         }
