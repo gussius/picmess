@@ -3,10 +3,10 @@ precision mediump float;
 
 uniform sampler2D hud;
 in vec2 textureCoord;
-out vec3 fragColor;
+out vec4 fragColor;
 
 void main()
 {
    vec4 color1 = texture2D(hud,textureCoord);
-   fragColor = vec3 ( color1 );
+   fragColor = vec4 ( color1 );
 }

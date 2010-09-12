@@ -324,7 +324,7 @@ namespace LearnShader
     {
         // Fields
         public byte R, G, B, A;
-        
+
         // Constructors
         public Byte4(byte[] input)
         {

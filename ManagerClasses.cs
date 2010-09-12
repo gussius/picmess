@@ -151,4 +151,33 @@ namespace LearnShader
         NumRenderBuffers
     }
 
+
+    public static class Fps
+    {
+        // Fields
+        private static double time = 0.0, frames = 0.0;
+        private static int fps = 0;
+
+        // Properties
+        public static int FPS
+        {
+            get { return fps; }
+        }
+
+        // Methods
+        public static void GetFps(double time)
+        {
+            time += time;
+            if (time < 1.0)
+            {
+                frames++;
+            }
+            else
+            {
+                fps = (int)frames;
+                time = 0.0;
+                frames = 0.0;
+            }
+        }
+    }
 }
