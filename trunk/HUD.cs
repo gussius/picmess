@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Graphics;
+using System.Drawing.Drawing2D;
 
 namespace LearnShader
 {
@@ -13,18 +14,18 @@ namespace LearnShader
         // Fields
         Bitmap textBmp;
         int textTexture;
-        float linePosY = 40;
         Shader fsQuadShader;
         Mesh fsQuadMesh;
         string name = "fsQuad";
         string sourceFile = @"C:\Temp\quad.obj";
         int sampler2DLocation;
+        string consoleOutput;
 
         // Constructors
         public FullScreenQuad(int width, int height)
         {
-            textBmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            textTexture = GL.GenTexture();
+            textBmp = (Bitmap)Bitmap.FromFile("c:\\temp\\pic7.png");
+            GL.GenTextures(1, out textTexture);
             GL.BindTexture(TextureTarget.Texture2D, textTexture);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
@@ -38,7 +39,6 @@ namespace LearnShader
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
 
             sampler2DLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "hud");
-
         }
 
         // Properties
@@ -46,13 +46,18 @@ namespace LearnShader
         // Methods
         public void AddText(string text)
         {
+            consoleOutput = consoleOutput + text;
+        }
+        public void DrawText()
+        {           
             using (Graphics gfx = Graphics.FromImage(textBmp))
             {
-                linePosY += 14;
-                if (linePosY <= 40)
-                    gfx.Clear(Color.Transparent);
-                gfx.DrawString(text, new Font("Arial", 12), new SolidBrush(Color.RoyalBlue), new PointF(10.0f, linePosY));
-
+                gfx.CompositingMode = CompositingMode.SourceOver;
+                gfx.CompositingQuality = CompositingQuality.HighQuality;
+                gfx.SmoothingMode = SmoothingMode.HighQuality;
+                gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                gfx.DrawString(consoleOutput, new Font("Agency FB", 20, FontStyle.Regular), new SolidBrush(Color.Black), new PointF(25.0f, 40.0f));
+                gfx.DrawString(Fps.FPS.ToString(), new Font("Agency FB", 20, FontStyle.Regular), new SolidBrush(Color.Black), new Point(580, 168));
             }
         }
         public void uploadTexture(int width, int height)
@@ -70,13 +75,12 @@ namespace LearnShader
             fsQuadShader.Bind();
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.BindTexture(TextureTarget.Texture2D, textTexture);
             GL.Uniform1(sampler2DLocation, 0);
             fsQuadMesh.Draw();
             GL.Disable(EnableCap.Texture2D);
             GL.Disable(EnableCap.Blend);
         }
-
     }
 }

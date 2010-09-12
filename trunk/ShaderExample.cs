@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Diagnostics;
 using OpenTK;
@@ -38,19 +39,18 @@ namespace LearnShader
 
             // Register a mouse button down event.
             Mouse.ButtonDown += new EventHandler<OpenTK.Input.MouseButtonEventArgs>(MouseButtonDown);
-            
+
 
             //  ------- Sandbox -------
 
             FSQuad = new FullScreenQuad(ClientSize.Width, ClientSize.Height);
-            FSQuad.AddText("Hello World");
-            FSQuad.AddText("Whats up my peeps, here is some more text to fill up the screen");
-            
+            FSQuad.AddText("Hello World\nWhat else is happening in the hood bro!?\nNot Much Dude!");
+            FSQuad.DrawText();
             FSQuad.uploadTexture(ClientSize.Width, ClientSize.Height);
 
 
             // Initialise objects to be drawn in the scene.
-            
+
             randomNumber = new Random();
             cubeArray = new Cube[25];
 
@@ -58,17 +58,19 @@ namespace LearnShader
             for (int i = 0; i < 25; i++)
             {
                 randomVector = new Vector3(randomNumber.Next(-5, 5), randomNumber.Next(-5, 5), randomNumber.Next(-120, -10));
-                randomRotation = new Vector3(randomNumber.Next(0, 314)/100, randomNumber.Next(0, 314)/100, 0);
+                randomRotation = new Vector3(randomNumber.Next(0, 314) / 100, randomNumber.Next(0, 314) / 100, 0);
                 cubeArray[i] = new Cube(randomVector, randomRotation, new Color4(0.4f, 0.5f, 0.0f, 1.0f));
             }
 
             // Create references to the manager classes singletons.
             fbManager = FrameBufferManager.Instance;
+            ListFonts();
         }
 
         // Methods
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            Fps.GetFps(e.Time);
             foreach (Cube sample in cubeArray)
             {
                 sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
@@ -77,14 +79,15 @@ namespace LearnShader
             {
                 Exit();
             }
-            if (Keyboard[OpenTK.Input.Key.Z])
+            if (Keyboard[OpenTK.Input.Key.LControl] && Keyboard[OpenTK.Input.Key.Z])
             {
                 showingSelectBuffer = true;
             }
-            if (Keyboard[OpenTK.Input.Key.A])
+            if (Keyboard[OpenTK.Input.Key.LControl] && Keyboard[OpenTK.Input.Key.A])
             {
                 showingSelectBuffer = false;
             }
+
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -94,8 +97,10 @@ namespace LearnShader
                 fbManager.ReadFBO(RenderState.Select);
                 GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
             }
+            else
+                FSQuad.Draw();
 
-            FSQuad.Draw();
+
 
             GL.Flush();
             SwapBuffers();
@@ -106,7 +111,7 @@ namespace LearnShader
             Shader.SetProjectionMatrix(Matrix4.CreatePerspectiveFieldOfView(0.5f, widthToHeight, 1, 150));
             GL.Viewport(0, 0, Width, Height);
             fbManager.UpdateSelectionViewport(Width, Height);
-        }        
+        }
         private void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
             PickColor(e.X, e.Y);
@@ -147,6 +152,13 @@ namespace LearnShader
                 }
             }
             return selected;
+        }
+        private void ListFonts()
+        {
+            foreach (FontFamily oneFontFamily in FontFamily.Families)
+            {
+                Console.WriteLine(oneFontFamily.Name);
+            }
         }
     }
 
