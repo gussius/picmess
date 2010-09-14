@@ -1,12 +1,14 @@
 #version 130
 precision mediump float;
 
-uniform sampler2D hud;
+uniform sampler2D background;
+uniform sampler2D foreground;
 in vec2 textureCoord;
 out vec4 fragColor;
 
 void main()
 {
-   vec4 color1 = texture2D(hud,textureCoord);
-   fragColor = vec4 ( color1 );
+   vec4 bgColor = texture2D(background, textureCoord);
+   vec4 fgColor = texture2D(foreground, textureCoord);
+   fragColor = mix( bgColor, fgColor, fgColor.a );
 }
