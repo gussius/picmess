@@ -12,33 +12,82 @@ namespace LearnShader
     class FullScreenQuad
     {
         // Fields
-        Bitmap textBmp;
-        int textTexture;
-        Shader fsQuadShader;
-        Mesh fsQuadMesh;
-        string name = "fsQuad";
-        string sourceFile = @"C:\Temp\quad.obj";
-        int sampler2DLocation;
-        string consoleOutput;
+        private Bitmap textBmp, consoleBackground;
+        private const TextureUnit backgroundTU = TextureUnit.Texture0;
+        private const TextureUnit foregroundTU = TextureUnit.Texture1;
+        private const int background = 0;
+        private const int foreground = 1;
+        private int[] consoleTexture = new int[2];
+        private Shader fsQuadShader;
+        private Mesh fsQuadMesh;
+        private string name = "fsQuad";
+        private string sourceFile = @"C:\Temp\quad.obj";
+        private int foregroundSamplerLocation;
+        private int backgroundSamplerLocation;
+        private int startTimeLocation, currentTimeLocation;
+        private int startTime, currentTime;
+        private int retractedLocation;
+        private int retracted = 0;
+        private string consoleOutput;
+        private List<string> consoleLines = new List<string>();
 
         // Constructors
         public FullScreenQuad(int width, int height)
         {
-            textBmp = (Bitmap)Bitmap.FromFile("c:\\temp\\pic7.png");
-            GL.GenTextures(1, out textTexture);
-            GL.BindTexture(TextureTarget.Texture2D, textTexture);
+            // Create a black bitmap for the forground text
+            textBmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            // Create a background bitmap from a provided png file.
+            consoleBackground = (Bitmap)Bitmap.FromFile("c:\\temp\\console.png");
+
+            // Generate 2 texture IDs
+            GL.GenTextures(2, consoleTexture);
+
+            // Bind and initialise the background texture
+            GL.ActiveTexture(backgroundTU);
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, consoleTexture[background]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, consoleBackground.Width, consoleBackground.Height, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+
+            // Upload the bitmap data to the background texture
+            BitmapData data = consoleBackground.LockBits(new Rectangle(0, 0, consoleBackground.Width, consoleBackground.Height), ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+                PixelType.UnsignedByte, data.Scan0);
+            consoleBackground.UnlockBits(data);
+
+            // Bind and initialise the foreground texture
+            GL.ActiveTexture(foregroundTU);
+            GL.Enable(EnableCap.Texture2D);
+            GL.BindTexture(TextureTarget.Texture2D, consoleTexture[foreground]);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, textBmp.Width, textBmp.Height, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
 
+            // Initialise the shader and mesh and bind appropriate vertex data to shader
             fsQuadShader = Shader.CreateShader("fsquad.vert", "fsquad.frag", name);
             fsQuadMesh = Mesh.CreateMesh(sourceFile, name);
             GL.EnableVertexAttribArray(0);
             GL.BindAttribLocation(fsQuadShader.ShaderID, 0, "vertex_position");
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.SizeInBytes, 0);
 
-            sampler2DLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "hud");
+            // Get locations for uniforms variable to pass to shader
+            backgroundSamplerLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "background");
+            foregroundSamplerLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "foreground");
+            startTimeLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "startTime");
+            currentTimeLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "currentTime");
+            retractedLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "retracted");
+
+            // Set initial uniforms
+            GL.Uniform1(retractedLocation, retracted);
+
+            //Clear memory and display empty strings
+            this.DrawText();
+            
         }
 
         // Properties
@@ -46,29 +95,34 @@ namespace LearnShader
         // Methods
         public void AddText(string text)
         {
-            consoleOutput = consoleOutput + text;
+            if (consoleLines.Count >= 5)
+                consoleLines.RemoveAt(0);
+            consoleLines.Add(text);
         }
         public void DrawText()
-        {           
+        {
+            Font consoleFont = new Font("Arial Narrow", 12, FontStyle.Bold);
+            Brush consoleBrush = new SolidBrush(Color.Black);
+
+            consoleOutput = "";
+            foreach (string line in consoleLines)
+                consoleOutput = consoleOutput + line + "\n";
+
             using (Graphics gfx = Graphics.FromImage(textBmp))
             {
+                gfx.Clear(Color.Transparent);
                 gfx.CompositingMode = CompositingMode.SourceOver;
                 gfx.CompositingQuality = CompositingQuality.HighQuality;
-                gfx.SmoothingMode = SmoothingMode.HighQuality;
-                gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                gfx.DrawString(consoleOutput, new Font("Agency FB", 20, FontStyle.Regular), new SolidBrush(Color.Black), new PointF(25.0f, 40.0f));
-                gfx.DrawString(Fps.FPS.ToString(), new Font("Agency FB", 20, FontStyle.Regular), new SolidBrush(Color.Black), new Point(580, 168));
+                gfx.SmoothingMode = SmoothingMode.AntiAlias;
+                gfx.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                gfx.DrawString(consoleOutput, consoleFont, consoleBrush, new PointF(25.0f, 5.0f));
             }
-        }
-        public void uploadTexture(int width, int height)
-        {
+            GL.ActiveTexture(foregroundTU);
             BitmapData data = textBmp.LockBits(new Rectangle(0, 0, textBmp.Width, textBmp.Height), ImageLockMode.ReadOnly,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, textBmp.Width, textBmp.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
                 PixelType.UnsignedByte, data.Scan0);
             textBmp.UnlockBits(data);
-
-
         }
         public void Draw()
         {
@@ -76,11 +130,30 @@ namespace LearnShader
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.BindTexture(TextureTarget.Texture2D, textTexture);
-            GL.Uniform1(sampler2DLocation, 0);
+            GL.Uniform1(backgroundSamplerLocation, 0);
+            GL.Uniform1(foregroundSamplerLocation, 1);
+            currentTime = Environment.TickCount;
+            GL.Uniform1(currentTimeLocation, currentTime);
             fsQuadMesh.Draw();
             GL.Disable(EnableCap.Texture2D);
             GL.Disable(EnableCap.Blend);
+        }
+        public void Toggle()
+        {
+            if (retracted == 0)
+            {
+                retracted = 1;
+                currentTime = Environment.TickCount;
+                GL.Uniform1(retractedLocation, retracted);
+                GL.Uniform1(startTimeLocation, currentTime);
+            }
+            else
+            {
+                retracted = 0;
+                currentTime = Environment.TickCount;
+                GL.Uniform1(retractedLocation, retracted);
+                GL.Uniform1(startTimeLocation, currentTime);
+            }
         }
     }
 }
