@@ -10,12 +10,12 @@ void main()
 {
    float offset = 0;
    int t = currentTime - startTime;
-   if ( t < 1100 )
+   if ( t < 500 )
 	{
 	   if ( retracted == 1 )
-		offset = 0.03 * sqrt(t);
+		offset = 0.000002 * pow(t, 2);
 	   else
-		offset = 0.03 * sqrt(1100) - 0.03 * sqrt(t);
+		offset = 0.5-0.000002 * pow(t, 2);
 	}
    else
 	{

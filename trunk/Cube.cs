@@ -33,7 +33,7 @@ namespace LearnShader
         // Constructors
         static Cube()
         {
-            sourceFile = @"C:\Temp\cube.obj";
+            sourceFile = "cube.obj";
             cubeMesh = Mesh.CreateMesh(sourceFile, name);
             fbManager = FrameBufferManager.Instance;
             
