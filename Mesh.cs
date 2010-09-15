@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -70,7 +71,11 @@ namespace LearnShader
             Regex vertexRegex = new Regex("(?<xcoord>-?\\d*\\.\\d{4}) (?<ycoord>-?\\d*\\.\\d{4}) (?<zcoord>-?\\d*\\.\\d{4})");
             Regex facesRegex = new Regex("(?<a>\\d*)/\\d*/(?<d>\\d*) (?<b>\\d*)/\\d*/(?<e>\\d*) (?<c>\\d*)/\\d*/(?<f>\\d*)");
 
-            using (StreamReader tr = new StreamReader(objFileName))
+            Assembly assembly;
+            StreamReader objStreamReader;
+            assembly = Assembly.GetExecutingAssembly();
+
+            using (objStreamReader = new StreamReader(assembly.GetManifestResourceStream("LearnShader.Geometry." + objFileName)))
             {
                 Console.WriteLine("--Loading {0}\n", objFileName);
 
@@ -81,9 +86,9 @@ namespace LearnShader
                 Match vertexMatch, faceMatch;
 
                 #region First pass for counting lines to ascertain array lengths
-                while (tr.Peek() > -1)
+                while (objStreamReader.Peek() > -1)
                 {
-                    line = tr.ReadLine();
+                    line = objStreamReader.ReadLine();
 
                     if (line.StartsWith("vn"))
                         vn++;
@@ -103,8 +108,8 @@ namespace LearnShader
                 objIndexBuffer = new VNPair[f * 3];
 
                 // Reset filestream back to zero
-                tr.BaseStream.Seek(0, SeekOrigin.Begin);
-                tr.DiscardBufferedData();
+                objStreamReader.BaseStream.Seek(0, SeekOrigin.Begin);
+                objStreamReader.DiscardBufferedData();
 
                 int vCount = 0;
                 int vnCount = 0;
@@ -112,9 +117,9 @@ namespace LearnShader
                 float x, y, z;
 
                 #region Second pass for loading data into arrays
-                while (tr.Peek() > -1)
+                while (objStreamReader.Peek() > -1)
                 {
-                    line = tr.ReadLine();
+                    line = objStreamReader.ReadLine();
                     vertexMatch = vertexRegex.Match(line);
                     faceMatch = facesRegex.Match(line);
 
@@ -146,7 +151,7 @@ namespace LearnShader
                 }
                 #endregion
 
-                tr.Close();
+                objStreamReader.Close();
             }
 
             int vPair = 0;

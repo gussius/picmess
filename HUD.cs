@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
@@ -21,11 +23,11 @@ namespace LearnShader
         private Shader fsQuadShader;
         private Mesh fsQuadMesh;
         private string name = "fsQuad";
-        private string sourceFile = @"C:\Temp\quad.obj";
+        private string sourceFile = "quad.obj";
         private int foregroundSamplerLocation;
         private int backgroundSamplerLocation;
         private int startTimeLocation, currentTimeLocation;
-        private int startTime, currentTime;
+        private int currentTime;
         private int retractedLocation;
         private int retracted = 0;
         private string consoleOutput;
@@ -34,11 +36,17 @@ namespace LearnShader
         // Constructors
         public FullScreenQuad(int width, int height)
         {
+            // Load resources from assembly
+            Assembly assembly;
+            Stream imageStream;
+            assembly = Assembly.GetExecutingAssembly();
+            imageStream = assembly.GetManifestResourceStream("LearnShader.Textures.console.png");
+
             // Create a black bitmap for the forground text
             textBmp = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             // Create a background bitmap from a provided png file.
-            consoleBackground = (Bitmap)Bitmap.FromFile("c:\\temp\\console.png");
+            consoleBackground = (Bitmap)Bitmap.FromStream(imageStream);
 
             // Generate 2 texture IDs
             GL.GenTextures(2, consoleTexture);
@@ -83,6 +91,7 @@ namespace LearnShader
             retractedLocation = GL.GetUniformLocation(fsQuadShader.ShaderID, "retracted");
 
             // Set initial uniforms
+            fsQuadShader.Bind();
             GL.Uniform1(retractedLocation, retracted);
 
             //Clear memory and display empty strings
@@ -90,19 +99,18 @@ namespace LearnShader
             
         }
 
-        // Properties
-
         // Methods
         public void AddText(string text)
         {
             if (consoleLines.Count >= 5)
                 consoleLines.RemoveAt(0);
             consoleLines.Add(text);
+            this.DrawText();
         }
         public void DrawText()
         {
             Font consoleFont = new Font("Arial Narrow", 12, FontStyle.Bold);
-            Brush consoleBrush = new SolidBrush(Color.Black);
+            Brush consoleBrush = new SolidBrush(Color.White);
 
             consoleOutput = "";
             foreach (string line in consoleLines)

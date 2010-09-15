@@ -59,6 +59,9 @@ namespace LearnShader
 
             // Create references to the manager classes singletons.
             fbManager = FrameBufferManager.Instance;
+
+            // Add introduction text
+            ResetConsole();
         }
 
         // Methods
@@ -72,11 +75,7 @@ namespace LearnShader
             if (Keyboard[OpenTK.Input.Key.Escape])
                 Exit();
 
-            if (Keyboard[OpenTK.Input.Key.LControl] && Keyboard[OpenTK.Input.Key.Z])
-                showingSelectBuffer = true;
 
-            if (Keyboard[OpenTK.Input.Key.LControl] && Keyboard[OpenTK.Input.Key.A])
-                showingSelectBuffer = false;
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -101,14 +100,44 @@ namespace LearnShader
             GL.Viewport(0, 0, Width, Height);
             fbManager.UpdateSelectionViewport(Width, Height);
         }
+        private void ResetConsole()
+        {
+            FSQuad.AddText("-- Toggle the console by pressing the 'Tilde' key.");
+            FSQuad.AddText("-- Select and unselect cubes by clicking on them with the left mouse button.");
+            FSQuad.AddText("-- To toggle the selection buffer view, press 'Ctrl-B'.");
+            FSQuad.AddText("-- Press I to view these instructions.");
+            FSQuad.AddText("-- To exit program, press 'Esc'");
+        }
         private void MouseButtonDown(object sender, MouseButtonEventArgs e)
         {
-            PickColor(e.X, e.Y);
+            if (e.Button == MouseButton.Left)
+                PickColor(e.X, e.Y);
         }
         private void KeyboardKeyDown(object sender, KeyboardKeyEventArgs e)
         {
+            #region 'Tilde'
             if (e.Key == Key.Tilde)
                 FSQuad.Toggle();
+            #endregion
+            #region 'Ctrl-B'
+            if (e.Key == Key.B)
+            {
+                if (Keyboard[Key.LControl])
+                {
+                    if (showingSelectBuffer == true)
+                    {
+                        showingSelectBuffer = false;
+                        FSQuad.AddText("Selection Buffer was displayed.");
+                    }
+                    else
+                        showingSelectBuffer = true;
+                }
+            }
+            #endregion
+            #region 'I'
+            if (e.Key == Key.I)
+                ResetConsole();
+            #endregion
         }
         private void DrawScene(RenderState state)
         {
@@ -138,13 +167,11 @@ namespace LearnShader
                 {
                     selected.IsSelected = false;
                     FSQuad.AddText("Cube Id #" + selected.Id + " unselected");
-                    FSQuad.DrawText();
                 }
                 else
                 {
                     selected.IsSelected = true;
                     FSQuad.AddText("Cube Id #" + selected.Id + " selected");
-                    FSQuad.DrawText();
                 }
             }
             return selected;

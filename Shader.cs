@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -28,15 +29,21 @@ namespace LearnShader
         }
         private Shader(string vsFileName, string fsFileName, string shaderName)
         {
+            Assembly assembly;
+            StreamReader vsStreamReader, fsStreamReader;
+            assembly = Assembly.GetExecutingAssembly();
+            vsStreamReader = new StreamReader(assembly.GetManifestResourceStream("LearnShader.Shaders." + vsFileName));
+            fsStreamReader = new StreamReader(assembly.GetManifestResourceStream("LearnShader.Shaders." + fsFileName));
+
             shaderRegister.Add(shaderName, this);
 
             vertexShader = GL.CreateShader(ShaderType.VertexShader);
             fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
 
-            string vsString = File.ReadAllText(vsFileName);
+            string vsString = vsStreamReader.ReadToEnd();
             GL.ShaderSource(vertexShader, vsString);
 
-            string fsString = File.ReadAllText(fsFileName);
+            string fsString = fsStreamReader.ReadToEnd();
             GL.ShaderSource(fragmentShader, fsString);
 
             GL.CompileShader(vertexShader);

@@ -101,6 +101,22 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\console.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Shaders\cube.frag" />
+    <EmbeddedResource Include="Shaders\cube.vert" />
+    <EmbeddedResource Include="Shaders\fsquad.frag" />
+    <EmbeddedResource Include="Shaders\fsquad.vert" />
+    <EmbeddedResource Include="Shaders\select.frag" />
+    <EmbeddedResource Include="Shaders\select.vert" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Geometry\cube.obj" />
+    <EmbeddedResource Include="Geometry\quad.obj" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
