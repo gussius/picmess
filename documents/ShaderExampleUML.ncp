@@ -7,7 +7,7 @@
       <Entity type="Class">
         <Name>VNPair</Name>
         <Access>Public</Access>
-        <Location left="1462" top="192" />
+        <Location left="1502" top="164" />
         <Size width="311" height="274" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private int position</Member>
@@ -27,19 +27,21 @@
         <Name>Cube</Name>
         <Access>Public</Access>
         <Location left="571" top="330" />
-        <Size width="348" height="468" />
+        <Size width="348" height="502" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static Shader cubeShader</Member>
+        <Member type="Field">private static Shader selectionShader</Member>
         <Member type="Field">private static string name</Member>
         <Member type="Field">private static FrameBufferManager fbManager</Member>
+        <Member type="Field">private static int surfaceColorLocation</Member>
+        <Member type="Field">private static int modelviewMatrixLocation</Member>
+        <Member type="Field">private static Mesh cubeMesh</Member>
+        <Member type="Field">private static string sourceFile</Member>
+        <Member type="Field">static Color4 selectedColor</Member>
         <Member type="Field">private Color4 color</Member>
         <Member type="Field">private Vector3 position</Member>
         <Member type="Field">private Vector3 rotation</Member>
-        <Member type="Field">private Mesh cubeMesh</Member>
-        <Member type="Field">private string sourceFile</Member>
-        <Member type="Field">private int surfaceColorLocation</Member>
         <Member type="Field">private Matrix4 modelviewMatrix</Member>
-        <Member type="Field">private int modelviewMatrixLocation</Member>
         <Member type="Field">private int id</Member>
         <Member type="Field">private bool isSelected</Member>
         <Member type="Constructor">static Cube()</Member>
@@ -57,7 +59,7 @@
       <Entity type="Class">
         <Name>EntryPoint</Name>
         <Access>Public</Access>
-        <Location left="1462" top="52" />
+        <Location left="1502" top="24" />
         <Size width="266" height="110" />
         <Collapsed>False</Collapsed>
         <Member type="Method">public void Main()</Member>
@@ -66,28 +68,24 @@
       <Entity type="Class">
         <Name>Game</Name>
         <Access>Public</Access>
-        <Location left="35" top="398" />
-        <Size width="401" height="434" />
+        <Location left="63" top="398" />
+        <Size width="401" height="370" />
         <Collapsed>False</Collapsed>
-        <Member type="Field">public int projectionMatrixLocation</Member>
-        <Member type="Field">Matrix4 projectionMatrix</Member>
-        <Member type="Field">Vector3 lightPosition</Member>
-        <Member type="Field">int lightPositionLocation</Member>
-        <Member type="Field">Cube cube</Member>
         <Member type="Field">Cube[] cubeArray</Member>
         <Member type="Field">Random randomNumber</Member>
         <Member type="Field">Vector3 randomVector</Member>
         <Member type="Field">Vector3 randomRotation</Member>
         <Member type="Field">FrameBufferManager fbManager</Member>
-        <Member type="Field">int clearColor</Member>
+        <Member type="Field">bool showingSelectBuffer</Member>
+        <Member type="Field">FullScreenQuad FSQuad</Member>
         <Member type="Constructor">public Game()</Member>
         <Member type="Method">protected override void OnUpdateFrame(FrameEventArgs e)</Member>
         <Member type="Method">protected override void OnRenderFrame(FrameEventArgs e)</Member>
         <Member type="Method">protected override void OnResize(EventArgs e)</Member>
         <Member type="Method">private void QueryMatrixLocation()</Member>
-        <Member type="Method">private void SetProjectionMatrix(Matrix matrix)</Member>
-        <Member type="Method">private void SetLightPosition(Vector3 light)</Member>
+        <Member type="Method">private void ResetConsole()</Member>
         <Member type="Method">public void MouseButtonDown(object sender, MouseButtonEventArgs e)</Member>
+        <Member type="Method">private void KeyboardKeyDown(object sender, KeyboardKeyEventArgs e)</Member>
         <Member type="Method">private void DrawScene(RenderState state)</Member>
         <Member type="Method">private ISelectable PickColor(int x, int y)</Member>
         <Modifier>None</Modifier>
@@ -95,7 +93,7 @@
       <Entity type="Structure">
         <Name>Vertex</Name>
         <Access>Public</Access>
-        <Location left="1462" top="499" />
+        <Location left="1502" top="471" />
         <Size width="489" height="310" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private Vector3 position</Member>
@@ -111,19 +109,18 @@
       <Entity type="Class">
         <Name>Mesh</Name>
         <Access>Public</Access>
-        <Location left="1036" top="219" />
+        <Location left="1076" top="191" />
         <Size width="332" height="292" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static Dictionary&lt;string, Mesh&gt; meshRegister</Member>
-        <Member type="Field">private static bool drawn</Member>
         <Member type="Field">private int[] indexArray</Member>
         <Member type="Field">private Vertex[] vertexArray</Member>
         <Member type="Field">private int VboID</Member>
         <Member type="Field">private int indicesVboHandle</Member>
-        <Member type="Constructor">private Mesh(string fileName, string MeshName)</Member>
         <Member type="Method">public static Mesh CreateMesh(string fileName, string meshName)</Member>
-        <Member type="Method">private void LoadVertices()</Member>
+        <Member type="Constructor">private Mesh(string fileName, string MeshName)</Member>
         <Member type="Method">private void LoadIndexer()</Member>
+        <Member type="Method">private void LoadVertices()</Member>
         <Member type="Method">public void Draw()</Member>
         <Member type="Method">public void LoadObjFile(string objFileName)</Member>
         <Modifier>None</Modifier>
@@ -131,7 +128,7 @@
       <Entity type="Structure">
         <Name>Byte4</Name>
         <Access>Public</Access>
-        <Location left="1462" top="846" />
+        <Location left="1502" top="818" />
         <Size width="162" height="216" />
         <Collapsed>False</Collapsed>
         <Member type="Field">public byte R</Member>
@@ -161,7 +158,7 @@
       <Entity type="Enum">
         <Name>RenderState</Name>
         <Access>Public</Access>
-        <Location left="371" top="852" />
+        <Location left="1696" top="818" />
         <Size width="162" height="112" />
         <Collapsed>False</Collapsed>
         <Value>Select</Value>
@@ -170,19 +167,25 @@
       <Entity type="Class">
         <Name>Shader</Name>
         <Access>Public</Access>
-        <Location left="1036" top="610" />
-        <Size width="332" height="281" />
+        <Location left="1000" top="582" />
+        <Size width="479" height="383" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static Dictionary&lt;string, Shader&gt; shaderRegister</Member>
-        <Member type="Field">private static Shader selectionShader</Member>
+        <Member type="Field">private static Matrix4 projectionMatrix</Member>
+        <Member type="Field">private static Vector3 lightPosition</Member>
         <Member type="Field">private int shaderID</Member>
         <Member type="Field">private int vertexShader</Member>
         <Member type="Field">private int fragmentShader</Member>
-        <Member type="Constructor">private Shader()</Member>
+        <Member type="Field">private int projectionPositionLocation</Member>
+        <Member type="Field">private int lightPositionLocation</Member>
+        <Member type="Constructor">static Shader()</Member>
+        <Member type="Constructor">private Shader(string vsFileName, string fsFileName, string shaderName)</Member>
         <Member type="Property">public int ShaderID { get; set; }</Member>
-        <Member type="Method">public static Shader CreateShader()</Member>
-        <Member type="Method">static void ValidateShader()</Member>
-        <Member type="Method">static void ValidateProgram()</Member>
+        <Member type="Method">public static Shader CreateShader(string vsFileName, string fsFileName, string shaderName)</Member>
+        <Member type="Method">private static void ValidateShader(int shader, string fileName)</Member>
+        <Member type="Method">private static void ValidateProgram(int program)</Member>
+        <Member type="Method">public static void SetProjectionMatrix(Matrix4 matrix)</Member>
+        <Member type="Method">public static void SetLightPosition(Vector3 light)</Member>
         <Member type="Method">public void Bind()</Member>
         <Member type="Method">public void UnBind()</Member>
         <Modifier>Sealed</Modifier>
@@ -190,7 +193,7 @@
       <Entity type="Class">
         <Name>FrameBufferManager</Name>
         <Access>Public</Access>
-        <Location left="571" top="852" />
+        <Location left="571" top="917" />
         <Size width="337" height="315" />
         <Collapsed>False</Collapsed>
         <Member type="Field">private static FrameBufferManager instance</Member>
@@ -200,7 +203,6 @@
         <Member type="Field">int viewportHeight</Member>
         <Member type="Field">private RenderState currentState</Member>
         <Member type="Constructor">static FrameBufferManager()</Member>
-        <Member type="Constructor">private FrameBufferManager()</Member>
         <Member type="Property">public FrameBufferManager Instance { get; }</Member>
         <Member type="Property">public RenderState CurrentState { get; }</Member>
         <Member type="Method">private static void SetRenderbufferStorage(int width, int height)</Member>
@@ -212,7 +214,7 @@
       <Entity type="Enum">
         <Name>RenderBuffer</Name>
         <Access>Public</Access>
-        <Location left="693" top="1262" />
+        <Location left="638" top="1312" />
         <Size width="162" height="112" />
         <Collapsed>False</Collapsed>
         <Value>Color</Value>
@@ -228,45 +230,72 @@
         <Member type="Property">int Id { get; set; }</Member>
         <Member type="Property">bool IsSelected { get; set; }</Member>
       </Entity>
+      <Entity type="Class">
+        <Name>FullScreenQuad</Name>
+        <Access>Public</Access>
+        <Location left="86" top="852" />
+        <Size width="355" height="502" />
+        <Collapsed>False</Collapsed>
+        <Member type="Field">private Bitmap textBmp</Member>
+        <Member type="Field">private Bitmap consoleBackground</Member>
+        <Member type="Field">private const TextureUnit backgroundTU = TextureUnit.Texture0</Member>
+        <Member type="Field">private const TextureUnit foregroundTU = TextureUnit.Texture1</Member>
+        <Member type="Field">private const int background = 0</Member>
+        <Member type="Field">private const int foreground = 1</Member>
+        <Member type="Field">private int[] consoleTexture = new int[2]</Member>
+        <Member type="Field">private Shader fsQuadShader</Member>
+        <Member type="Field">private Mesh fsQuadMesh</Member>
+        <Member type="Field">private string name = "fsQuad"</Member>
+        <Member type="Field">private string sourceFile = "quad.obj"</Member>
+        <Member type="Field">private int foregroundSamplerLocation</Member>
+        <Member type="Field">private int backgroundSamplerLocation</Member>
+        <Member type="Field">private int startTimeLocation</Member>
+        <Member type="Field">private int currentTimeLocation</Member>
+        <Member type="Field">private int currentTime</Member>
+        <Member type="Field">private int retractedLocation</Member>
+        <Member type="Field">private int retracted = 0</Member>
+        <Member type="Field">private string consoleOutput</Member>
+        <Member type="Field">private List&lt;string&gt; concoleLines = new List&lt;string&gt;()</Member>
+        <Member type="Constructor">public FullScreenQuad(int width, int height)</Member>
+        <Member type="Method">public void AddText(string text)</Member>
+        <Member type="Method">public void DrawText()</Member>
+        <Member type="Method">public void Draw()</Member>
+        <Member type="Method">public void Toggle()</Member>
+        <Modifier>None</Modifier>
+      </Entity>
     </Entities>
     <Relationships>
       <Relationship type="Association" first="1" second="9">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>965</X>
-          <Y>683</Y>
+          <X>953</X>
+          <Y>690</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1009</X>
-          <Y>683</Y>
+          <X>974</X>
+          <Y>690</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="1" second="5">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>950</X>
-          <Y>505</Y>
+          <X>953</X>
+          <Y>449</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>1011</X>
-          <Y>310</Y>
+          <X>1051</X>
+          <Y>282</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
         <StartRole>has</StartRole>
       </Relationship>
       <Relationship type="Association" first="7" second="7">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -283,10 +312,12 @@
         <EndMultiplicity>1</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="3" second="1">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>461</X>
+          <X>489</X>
           <Y>518</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
@@ -299,17 +330,15 @@
         <EndMultiplicity>*</EndMultiplicity>
       </Relationship>
       <Relationship type="Association" first="10" second="10">
-        <Label>
-        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>965</X>
-          <Y>1130</Y>
+          <Y>1195</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>831</X>
-          <Y>1192</Y>
+          <Y>1257</Y>
         </BendPoint>
         <Direction>Bidirectional</Direction>
         <AssociationType>Aggregation</AssociationType>
@@ -320,24 +349,26 @@
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>781</X>
-          <Y>1204</Y>
+          <X>726</X>
+          <Y>1263</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>781</X>
-          <Y>1237</Y>
+          <X>726</X>
+          <Y>1287</Y>
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="1" second="10">
+        <Label>
+        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
           <X>811</X>
-          <Y>823</Y>
+          <Y>857</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
           <X>811</X>
-          <Y>804</Y>
+          <Y>869</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
@@ -355,20 +386,24 @@
         </BendPoint>
       </Relationship>
       <Relationship type="Association" first="9" second="10">
+        <Label>
+        </Label>
         <StartOrientation>Vertical</StartOrientation>
         <EndOrientation>Horizontal</EndOrientation>
         <BendPoint relativeToStartShape="True">
-          <X>1133</X>
-          <Y>929</Y>
+          <X>1097</X>
+          <Y>1003</Y>
         </BendPoint>
         <BendPoint relativeToStartShape="False">
-          <X>938</X>
-          <Y>935</Y>
+          <X>943</X>
+          <Y>1003</Y>
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
       </Relationship>
       <Relationship type="Association" first="1" second="7">
+        <Label>
+        </Label>
         <StartOrientation>Horizontal</StartOrientation>
         <EndOrientation>Vertical</EndOrientation>
         <BendPoint relativeToStartShape="True">
@@ -377,6 +412,18 @@
         </BendPoint>
         <Direction>Unidirectional</Direction>
         <AssociationType>Association</AssociationType>
+      </Relationship>
+      <Relationship type="Association" first="3" second="13">
+        <StartOrientation>Vertical</StartOrientation>
+        <EndOrientation>Vertical</EndOrientation>
+        <BendPoint relativeToStartShape="False">
+          <X>272</X>
+          <Y>817</Y>
+        </BendPoint>
+        <Direction>Unidirectional</Direction>
+        <AssociationType>Aggregation</AssociationType>
+        <StartMultiplicity>has</StartMultiplicity>
+        <EndMultiplicity>*</EndMultiplicity>
       </Relationship>
     </Relationships>
   </ProjectItem>
