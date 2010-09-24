@@ -86,7 +86,7 @@
     <Compile Include="HUD.cs" />
     <Compile Include="Cube.cs" />
     <Compile Include="ManagerClasses.cs" />
-    <Compile Include="Geometry.cs" />
+    <Compile Include="Mesh.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

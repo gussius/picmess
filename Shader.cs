@@ -63,6 +63,10 @@ namespace LearnShader
         {
             get { return shaderID; }
         }
+        public static Matrix4 ProjectionMatrix
+        {
+            get { return projectionMatrix; }
+        }
 
         // Static Methods
         public static Shader CreateShader(string vsFileName, string fsFileName, string shaderName)
