@@ -131,6 +131,7 @@ namespace LearnShader
     public interface ISelectable
     {
         int Id { get; }
-        bool IsSelected { get; }
+        bool IsSelected { get; set; }
+        Vector3 Position { get; set; }
     }
 }
