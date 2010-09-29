@@ -14,6 +14,7 @@ namespace LearnShader
     class FullScreenQuad
     {
         // Fields
+        private static FullScreenQuad console;
         private Bitmap textBmp, consoleBackground;
         private const TextureUnit backgroundTU = TextureUnit.Texture0;
         private const TextureUnit foregroundTU = TextureUnit.Texture1;
@@ -32,9 +33,15 @@ namespace LearnShader
         private int retracted = 0;
         private string consoleOutput;
         private List<string> consoleLines = new List<string>();
+        int startLine, endLine, scrollLine;
+        const int maxLines = 50;
 
         // Constructors
-        public FullScreenQuad(int width, int height)
+        static FullScreenQuad()
+        {
+            console = new FullScreenQuad(640, 480);
+        }
+        private FullScreenQuad(int width, int height)
         {
             // Load resources from assembly
             Assembly assembly;
@@ -99,12 +106,20 @@ namespace LearnShader
             
         }
 
+        // Properties
+        public static FullScreenQuad Console
+        {
+            get { return console; }
+        }
+
         // Methods
         public void AddText(string text)
         {
-            if (consoleLines.Count >= 5)
+            if (consoleLines.Count >= maxLines)
                 consoleLines.RemoveAt(0);
             consoleLines.Add(text);
+            scrollLine = 0;
+
             this.DrawText();
         }
         public void DrawText()
@@ -113,8 +128,22 @@ namespace LearnShader
             Brush consoleBrush = new SolidBrush(Color.White);
 
             consoleOutput = "";
-            foreach (string line in consoleLines)
-                consoleOutput = consoleOutput + line + "\n";
+
+            if ((startLine = consoleLines.Count - 5 + scrollLine) < 0)
+            {
+                startLine = 0;
+                if (consoleLines.Count - startLine < 5)
+                    endLine = consoleLines.Count;
+            }
+            else
+                endLine = startLine + 5;
+            if (endLine > consoleLines.Count)
+                endLine = consoleLines.Count;
+
+            for (int i = startLine; i < endLine; i++)
+            {
+                consoleOutput = consoleOutput + consoleLines[i] + "\n";
+            }
 
             using (Graphics gfx = Graphics.FromImage(textBmp))
             {
@@ -162,6 +191,28 @@ namespace LearnShader
                 GL.Uniform1(retractedLocation, retracted);
                 GL.Uniform1(startTimeLocation, currentTime);
             }
+        }
+        public void Scroll(int lines)
+        {
+            if ((startLine == 0) && (lines > 0))
+                lines = 0;
+            
+            if ((scrollLine = scrollLine - lines) > 0)
+                scrollLine = 0;
+            DrawText();            
+        }
+        public void DisplayHelp()
+        {
+            AddText("-- Toggle the console by pressing the '~' key.");
+            AddText("-- Select and unselect cubes by clicking on them with the left mouse button.");
+            AddText("-- To toggle the selection buffer view, press 'Ctrl-B'.");
+            AddText("-- Press 'F1' to view these instructions.");
+            AddText("-- To exit program, press 'Esc'");
+        }
+        public void Update(int mousePosition, int mouseWheelDelta)
+        {
+            if (mousePosition <= 110)
+               console.Scroll(mouseWheelDelta);
         }
     }
 }

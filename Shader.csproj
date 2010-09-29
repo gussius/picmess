@@ -92,6 +92,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Scene.cs" />
+    <Compile Include="Selection.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="ShaderExample.cs" />
   </ItemGroup>
