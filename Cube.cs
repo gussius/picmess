@@ -29,6 +29,8 @@ namespace LearnShader
         private Matrix4 modelviewMatrix;
         private int id;
         private bool isSelected;
+        private Vector3 velocity;
+        private Vector3 acceleration;
 
         // Constructors
         static Cube()
@@ -59,22 +61,19 @@ namespace LearnShader
         {
             this.position = position;
             this.rotation = rotation;
+            this.velocity = Vector3.Zero;
+            this.acceleration = Vector3.Zero;
 
             this.registerCube();
             this.color = color;
         }
 
         // Properties
-        public Vector3 Position
-        {
-            get { return position; }
-            set { position = value; }
-        }
-        public Vector3 Rotation
-        {
-            get { return rotation; }
-            set { rotation = value; }
-        }
+        public Vector3 Position { get { return position; } set { position = value; } }
+        public Vector3 Rotation { get { return rotation; } set { rotation = value; } }
+        public Vector3 Velocity { get { return velocity; } set { velocity = value; } }
+        public Vector3 Acceleration { get { return acceleration; } set { acceleration = value; } }
+
         public Color4 Color
         {
             get { return color; }
@@ -101,6 +100,8 @@ namespace LearnShader
         }
         public void Draw()
         {
+            position = position + velocity;
+
             modelviewMatrix = Matrix4.CreateRotationX(rotation.X) *
                               Matrix4.CreateRotationY(rotation.Y) *
                               Matrix4.CreateRotationZ(rotation.Z) *
@@ -135,6 +136,8 @@ namespace LearnShader
         bool IsSelected { get; set; }
         Vector3 Position { get; set; }
         Vector3 Rotation { get; set; }
+        Vector3 Velocity { get; set; }
+        Vector3 Acceleration { get; set; }
 
         // Methods
         void Draw();

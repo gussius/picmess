@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Drawing;
+using System.Timers;
 using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -38,14 +40,21 @@ namespace LearnShader
         FrameBufferManager fbManager;
         FullScreenQuad console;
         private bool selectDrag = false;
-        private Vector3 initialPosition;
-        
+        Timer pollingTimer;
+        double releaseTime;
+        double preReleaseTime;
+        Vector3 releasePosition;
+        Vector3 preReleasePosition;
+
         // Constructors
         public Selection()
         {
             fbManager = new FrameBufferManager();
             console = FullScreenQuad.Console;
             info.Selected = null;
+            pollingTimer = new Timer(20);
+            pollingTimer.AutoReset = true;
+            pollingTimer.Elapsed += new System.Timers.ElapsedEventHandler(pollingTimerElapsed);
         }
 
         // Properties
@@ -54,6 +63,8 @@ namespace LearnShader
         // Methods
         public void Pick(Scene scene, int x, int y)
         {
+            pollingTimer.Start();
+
             scene.DrawScene(RenderState.Select);
             fbManager.ReadFBO(RenderState.Select);
             int[] viewport = new int[4];
@@ -81,9 +92,6 @@ namespace LearnShader
         }
         public void DragTo(int screenX, int screenY)
         {
-            // If we are in draging mode and if there is something selected then
-            // unproject the mouse position, define a new position for the object
-            // and update it's position.
             if (selectDrag == true)
             {
                 if (info.Selected != null)
@@ -94,15 +102,25 @@ namespace LearnShader
                     info.Selected.Position = newPosition;
                 }
             }
-
         }
-        public void DisableDrag()
+        public void DisableDrag(int screenX, int screenY)
         {
+            pollingTimer.Stop();
             selectDrag = false;
+            releaseTime = Environment.TickCount;
+            releasePosition = unProject(screenX, screenY, info.SurfaceCoordinate.W) + info.SelectionOffset;
+            info.Selected.Velocity = (releasePosition - preReleasePosition) / 2;
+
+            console.AddText("Velocity = " + info.Selected.Velocity.ToString());
         }
         public void EnableDrag()
         {
             selectDrag = true;
+        }
+        private void pollingTimerElapsed(object source, ElapsedEventArgs e)
+        {
+            preReleaseTime = Environment.TickCount;
+            preReleasePosition = info.Selected.Position;
         }
         private Vector4 unProject(int screenX, int screenY)
         {

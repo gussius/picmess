@@ -114,7 +114,7 @@ namespace LearnShader
         }
         private void MouseButtonUp(object sender, MouseButtonEventArgs e)
         {
-            singleSelection.DisableDrag();
+            singleSelection.DisableDrag(Mouse.X, Mouse.Y);
         }
         private void MouseWheelChanged(object sender, MouseWheelEventArgs e)
         {
