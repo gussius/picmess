@@ -63,8 +63,6 @@ namespace LearnShader
         // Methods
         public void Pick(Scene scene, int x, int y)
         {
-            pollingTimer.Start();
-
             scene.DrawScene(RenderState.Select);
             fbManager.ReadFBO(RenderState.Select);
             int[] viewport = new int[4];
@@ -82,13 +80,21 @@ namespace LearnShader
 
             if (newPick != null)
             {
+                pollingTimer.Start();
                 info.Selected = newPick;
+                info.Selected.Moving = false;
+                info.Selected.Velocity = Vector3.Zero;
                 info.SurfaceCoordinate = unProject(x, y);
                 info.Selected.IsSelected = true;
                 console.AddText("Cube Id #" + info.Selected.Id + " selected");
                 info.SelectionOffset = info.Selected.Position - info.SurfaceCoordinate.Xyz;
                 EnableDrag();
             }
+            else
+            {
+                info.Selected = null;
+            }
+            
         }
         public void DragTo(int screenX, int screenY)
         {
@@ -109,9 +115,13 @@ namespace LearnShader
             selectDrag = false;
             releaseTime = Environment.TickCount;
             releasePosition = unProject(screenX, screenY, info.SurfaceCoordinate.W) + info.SelectionOffset;
-            info.Selected.Velocity = (releasePosition - preReleasePosition) / 2;
-
-            console.AddText("Velocity = " + info.Selected.Velocity.ToString());
+            if (info.Selected != null)
+            {
+                info.Selected.Moving = true;
+                info.Selected.IsSelected = false;
+                info.Selected.Velocity = (releasePosition - preReleasePosition) * 40;
+                info.Selected.Acceleration = Vector3.Multiply(info.Selected.Velocity, -1.5f);
+            }
         }
         public void EnableDrag()
         {

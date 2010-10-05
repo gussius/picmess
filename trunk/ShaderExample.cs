@@ -80,8 +80,9 @@ namespace LearnShader
                 if (singleSelection.Info.Selected == null)
                     sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
                 else
-                    if (sample.Id !=  singleSelection.Info.Selected.Id)
-                        sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
+                    if (sample.Id !=  singleSelection.Info.Selected.Id) // if it is selected
+                        if (!sample.IsSelected)
+                            sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
             }
         }
         protected override void OnRenderFrame(FrameEventArgs e)
