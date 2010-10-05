@@ -24,13 +24,18 @@ namespace LearnShader
       
         // Instance Fields
         private Color4 color;
-        private Vector3 position;
+        private Vector3 position1;
         private Vector3 rotation;
         private Matrix4 modelviewMatrix;
         private int id;
         private bool isSelected;
-        private Vector3 velocity;
+        private Vector3 velocity1;
         private Vector3 acceleration;
+        private int t0, t1;
+        private float tDelta;
+        private Vector3 position0;
+        private Vector3 velocity0;
+        private bool moving;
 
         // Constructors
         static Cube()
@@ -59,20 +64,26 @@ namespace LearnShader
         }
         public Cube(Vector3 position, Vector3 rotation, Color4 color)
         {
-            this.position = position;
+            this.position1 = position;
+            this.position0 = position;
             this.rotation = rotation;
-            this.velocity = Vector3.Zero;
+            this.velocity1 = Vector3.Zero;
+            this.velocity0 = Vector3.Zero;
             this.acceleration = Vector3.Zero;
+            this.t0 = 0;
+            this.t1 = 0;
+            this.moving = false;
 
             this.registerCube();
             this.color = color;
         }
 
         // Properties
-        public Vector3 Position { get { return position; } set { position = value; } }
+        public Vector3 Position { get { return position1; } set { position1 = value; } }
         public Vector3 Rotation { get { return rotation; } set { rotation = value; } }
-        public Vector3 Velocity { get { return velocity; } set { velocity = value; } }
+        public Vector3 Velocity { get { return velocity1; } set { velocity1 = value; } }
         public Vector3 Acceleration { get { return acceleration; } set { acceleration = value; } }
+        public bool Moving { get { return moving; } set { moving = value; } }
 
         public Color4 Color
         {
@@ -100,12 +111,20 @@ namespace LearnShader
         }
         public void Draw()
         {
-            position = position + velocity;
+            t1 = Environment.TickCount;
+            tDelta = (float)(t1 - t0)/1000;
+
+            if (moving)
+            {
+                position1 = position0 + Vector3.Multiply(velocity1, tDelta) + Vector3.Multiply(Vector3.Multiply(acceleration, 0.5f), tDelta * tDelta);
+                velocity0 = velocity1;
+                velocity1 = velocity0 + Vector3.Multiply(acceleration, tDelta);
+            }
 
             modelviewMatrix = Matrix4.CreateRotationX(rotation.X) *
                               Matrix4.CreateRotationY(rotation.Y) *
                               Matrix4.CreateRotationZ(rotation.Z) *
-                              Matrix4.CreateTranslation(position);
+                              Matrix4.CreateTranslation(position1);
 
             if (fbManager.CurrentState == RenderState.Render)
             {
@@ -125,6 +144,17 @@ namespace LearnShader
                 }
             
             cubeMesh.Draw();
+
+            if (velocity1.Length < 1.0)
+            {
+                acceleration = Vector3.Zero;
+                velocity1 = Vector3.Zero;
+            }
+
+            // Save current parameters for next pass
+            t0 = t1;
+            position0 = position1;
+            velocity0 = velocity1;
         }
     }
 
@@ -138,6 +168,7 @@ namespace LearnShader
         Vector3 Rotation { get; set; }
         Vector3 Velocity { get; set; }
         Vector3 Acceleration { get; set; }
+        bool Moving { get; set; }
 
         // Methods
         void Draw();
