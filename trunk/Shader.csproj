@@ -83,8 +83,9 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HUD.cs" />
     <Compile Include="Cube.cs" />
+    <Compile Include="FSQuad.cs" />
+    <Compile Include="HUD.cs" />
     <Compile Include="ManagerClasses.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -96,6 +97,7 @@
     <Compile Include="Selection.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="ShaderExample.cs" />
+    <Compile Include="SSAO.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

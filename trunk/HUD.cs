@@ -11,10 +11,10 @@ using System.Drawing.Drawing2D;
 
 namespace LearnShader
 {
-    class FullScreenQuad
+    class OutputWindow
     {
         // Fields
-        private static FullScreenQuad console;
+        private static OutputWindow console;
         private Bitmap textBmp, consoleBackground;
         private const TextureUnit backgroundTU = TextureUnit.Texture0;
         private const TextureUnit foregroundTU = TextureUnit.Texture1;
@@ -23,7 +23,7 @@ namespace LearnShader
         private int[] consoleTexture = new int[2];
         private Shader fsQuadShader;
         private Mesh fsQuadMesh;
-        private string name = "fsQuad";
+        private string name = "outputWindow";
         private string sourceFile = "quad.obj";
         private int foregroundSamplerLocation;
         private int backgroundSamplerLocation;
@@ -37,11 +37,11 @@ namespace LearnShader
         const int maxLines = 50;
 
         // Constructors
-        static FullScreenQuad()
+        static OutputWindow()
         {
-            console = new FullScreenQuad(640, 480);
+            console = new OutputWindow(640, 480);
         }
-        private FullScreenQuad(int width, int height)
+        private OutputWindow(int width, int height)
         {
             // Load resources from assembly
             Assembly assembly;
@@ -107,7 +107,7 @@ namespace LearnShader
         }
 
         // Properties
-        public static FullScreenQuad Console
+        public static OutputWindow Console
         {
             get { return console; }
         }
