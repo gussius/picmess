@@ -114,6 +114,9 @@ namespace LearnShader
             t1 = Environment.TickCount;
             tDelta = (float)(t1 - t0)/1000;
 
+            if (!isSelected)
+                rotation = rotation + new Vector3(0.01f, 0.02f, 0.0f);
+
             if (moving)
             {
                 position1 = position0 + Vector3.Multiply(velocity1, tDelta) + Vector3.Multiply(Vector3.Multiply(acceleration, 0.5f), tDelta * tDelta);

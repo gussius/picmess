@@ -38,7 +38,7 @@ namespace LearnShader
         // Fields
         private SelectionInfo info;
         FrameBufferManager fbManager;
-        FullScreenQuad console;
+        OutputWindow console;
         private bool selectDrag = false;
         Timer pollingTimer;
         double releaseTime;
@@ -50,7 +50,7 @@ namespace LearnShader
         public Selection()
         {
             fbManager = new FrameBufferManager();
-            console = FullScreenQuad.Console;
+            console = OutputWindow.Console;
             info.Selected = null;
             pollingTimer = new Timer(20);
             pollingTimer.AutoReset = true;
@@ -120,6 +120,8 @@ namespace LearnShader
                 info.Selected.Moving = true;
                 info.Selected.IsSelected = false;
                 info.Selected.Velocity = (releasePosition - preReleasePosition) * 40;
+                if (info.Selected.Velocity.Length > 50)
+                    info.Selected.Velocity = Vector3.Multiply(info.Selected.Velocity, 50.0f / info.Selected.Velocity.Length);
                 info.Selected.Acceleration = Vector3.Multiply(info.Selected.Velocity, -1.5f);
             }
         }

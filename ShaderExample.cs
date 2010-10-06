@@ -20,7 +20,7 @@ namespace LearnShader
         Vector3 randomRotation;
         FrameBufferManager fbManager;
         bool showingSelectBuffer = false;
-        FullScreenQuad console;
+        OutputWindow console;
         Selection singleSelection;
 
         // Constructors
@@ -49,7 +49,7 @@ namespace LearnShader
             //  ------- Sandbox -------
 
             // Initialise objects to be drawn in the scene.
-            console = FullScreenQuad.Console;
+            console = OutputWindow.Console;
             randomNumber = new Random();
             scene1 = new Scene();
             //cubeArray = new Cube[25];
@@ -73,17 +73,6 @@ namespace LearnShader
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             singleSelection.DragTo(Mouse.X, Mouse.Y);
-
-            // Rotate all cubes except selected cube.
-            foreach (ISelectable sample in scene1.ActorList)
-            {
-                if (singleSelection.Info.Selected == null)
-                    sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
-                else
-                    if (sample.Id !=  singleSelection.Info.Selected.Id) // if it is selected
-                        if (!sample.IsSelected)
-                            sample.Rotation = sample.Rotation + new Vector3(0.01f, 0.02f, 0.0f);
-            }
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
