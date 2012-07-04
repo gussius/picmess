@@ -88,22 +88,11 @@
     <Compile Include="HUD.cs" />
     <Compile Include="ManagerClasses.cs" />
     <Compile Include="Mesh.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Scene.cs" />
     <Compile Include="Selection.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="ShaderExample.cs" />
     <Compile Include="SSAO.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Textures\console.png" />
@@ -116,7 +105,9 @@
     <EmbeddedResource Include="Shaders\select.frag" />
     <EmbeddedResource Include="Shaders\select.vert" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Geometry\cube.obj" />
     <EmbeddedResource Include="Geometry\quad.obj" />
