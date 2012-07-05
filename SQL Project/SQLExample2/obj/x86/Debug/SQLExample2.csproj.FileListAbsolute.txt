@@ -16,3 +16,15 @@ C:\Users\M8 Kit 1\Documents\Visual Studio 2010\Projects\SQLExample2\SQLExample2\
 C:\Users\M8 Kit 1\Documents\Visual Studio 2010\Projects\SQLExample2\SQLExample2\obj\x86\Debug\SQLExample2.Properties.Resources.resources
 C:\Users\M8 Kit 1\Documents\Visual Studio 2010\Projects\SQLExample2\SQLExample2\obj\x86\Debug\GenerateResource.read.1.tlog
 C:\Users\M8 Kit 1\Documents\Visual Studio 2010\Projects\SQLExample2\SQLExample2\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.exe
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.pdb
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\SQLExample2.exe
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\SQLExample2.pdb
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.Form1.resources
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.Properties.Resources.resources
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\SQLExample2.exe.config
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\WorkerDB.mdf
+C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\WorkerDB_log.ldf
