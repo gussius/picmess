@@ -29,6 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea11 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea12 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series11 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series12 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tbFirstName = new System.Windows.Forms.TextBox();
             this.tbLastName = new System.Windows.Forms.TextBox();
             this.tbJobTitle = new System.Windows.Forms.TextBox();
@@ -49,28 +54,32 @@
             this.btnDelete = new System.Windows.Forms.Button();
             this.dbGridView = new System.Windows.Forms.DataGridView();
             this.dbBindSource = new System.Windows.Forms.BindingSource(this.components);
+            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dbGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dbBindSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbFirstName
             // 
-            this.tbFirstName.Location = new System.Drawing.Point(86, 23);
+            this.tbFirstName.Location = new System.Drawing.Point(96, 13);
             this.tbFirstName.Name = "tbFirstName";
             this.tbFirstName.Size = new System.Drawing.Size(148, 20);
             this.tbFirstName.TabIndex = 6;
             // 
             // tbLastName
             // 
-            this.tbLastName.Location = new System.Drawing.Point(86, 62);
+            this.tbLastName.Location = new System.Drawing.Point(96, 52);
             this.tbLastName.Name = "tbLastName";
             this.tbLastName.Size = new System.Drawing.Size(148, 20);
             this.tbLastName.TabIndex = 7;
             // 
             // tbJobTitle
             // 
-            this.tbJobTitle.Location = new System.Drawing.Point(86, 101);
+            this.tbJobTitle.Location = new System.Drawing.Point(96, 91);
             this.tbJobTitle.Name = "tbJobTitle";
             this.tbJobTitle.Size = new System.Drawing.Size(148, 20);
             this.tbJobTitle.TabIndex = 8;
@@ -78,7 +87,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(23, 26);
+            this.label1.Location = new System.Drawing.Point(33, 16);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 0;
@@ -87,7 +96,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(23, 65);
+            this.label2.Location = new System.Drawing.Point(33, 55);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(58, 13);
             this.label2.TabIndex = 0;
@@ -96,7 +105,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(23, 104);
+            this.label3.Location = new System.Drawing.Point(33, 94);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(47, 13);
             this.label3.TabIndex = 0;
@@ -104,9 +113,9 @@
             // 
             // btnNext
             // 
-            this.btnNext.Location = new System.Drawing.Point(174, 183);
+            this.btnNext.Location = new System.Drawing.Point(55, 78);
             this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(72, 23);
+            this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 1;
             this.btnNext.Text = "NextRecord";
             this.btnNext.UseVisualStyleBackColor = true;
@@ -114,7 +123,7 @@
             // 
             // btnPrevious
             // 
-            this.btnPrevious.Location = new System.Drawing.Point(93, 183);
+            this.btnPrevious.Location = new System.Drawing.Point(55, 48);
             this.btnPrevious.Name = "btnPrevious";
             this.btnPrevious.Size = new System.Drawing.Size(75, 23);
             this.btnPrevious.TabIndex = 0;
@@ -128,9 +137,9 @@
             this.lblRecordNo,
             this.lblSpace,
             this.lblAction});
-            this.statusStrip.Location = new System.Drawing.Point(0, 432);
+            this.statusStrip.Location = new System.Drawing.Point(0, 415);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(339, 22);
+            this.statusStrip.Size = new System.Drawing.Size(667, 22);
             this.statusStrip.TabIndex = 0;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -143,7 +152,7 @@
             // lblSpace
             // 
             this.lblSpace.Name = "lblSpace";
-            this.lblSpace.Size = new System.Drawing.Size(172, 17);
+            this.lblSpace.Size = new System.Drawing.Size(531, 17);
             this.lblSpace.Spring = true;
             this.lblSpace.Text = "space holder";
             // 
@@ -155,7 +164,7 @@
             // 
             // btnLast
             // 
-            this.btnLast.Location = new System.Drawing.Point(253, 183);
+            this.btnLast.Location = new System.Drawing.Point(55, 107);
             this.btnLast.Name = "btnLast";
             this.btnLast.Size = new System.Drawing.Size(75, 23);
             this.btnLast.TabIndex = 0;
@@ -165,7 +174,7 @@
             // 
             // btnFirst
             // 
-            this.btnFirst.Location = new System.Drawing.Point(12, 183);
+            this.btnFirst.Location = new System.Drawing.Point(55, 19);
             this.btnFirst.Name = "btnFirst";
             this.btnFirst.Size = new System.Drawing.Size(75, 23);
             this.btnFirst.TabIndex = 0;
@@ -175,7 +184,7 @@
             // 
             // btnAddNew
             // 
-            this.btnAddNew.Location = new System.Drawing.Point(253, 52);
+            this.btnAddNew.Location = new System.Drawing.Point(538, 19);
             this.btnAddNew.Name = "btnAddNew";
             this.btnAddNew.Size = new System.Drawing.Size(75, 23);
             this.btnAddNew.TabIndex = 2;
@@ -185,7 +194,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(253, 81);
+            this.btnSave.Location = new System.Drawing.Point(538, 48);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 3;
@@ -195,7 +204,7 @@
             // 
             // btnUpdate
             // 
-            this.btnUpdate.Location = new System.Drawing.Point(253, 111);
+            this.btnUpdate.Location = new System.Drawing.Point(538, 78);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(75, 23);
             this.btnUpdate.TabIndex = 4;
@@ -205,7 +214,7 @@
             // 
             // btnDelete
             // 
-            this.btnDelete.Location = new System.Drawing.Point(253, 140);
+            this.btnDelete.Location = new System.Drawing.Point(538, 107);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(75, 23);
             this.btnDelete.TabIndex = 5;
@@ -215,17 +224,60 @@
             // 
             // dbGridView
             // 
+            this.dbGridView.AllowUserToAddRows = false;
+            this.dbGridView.AllowUserToDeleteRows = false;
             this.dbGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dbGridView.Location = new System.Drawing.Point(12, 222);
+            this.dbGridView.Location = new System.Drawing.Point(12, 152);
             this.dbGridView.Name = "dbGridView";
-            this.dbGridView.Size = new System.Drawing.Size(316, 196);
+            this.dbGridView.ReadOnly = true;
+            this.dbGridView.RowHeadersVisible = false;
+            this.dbGridView.Size = new System.Drawing.Size(316, 246);
             this.dbGridView.TabIndex = 9;
+            this.dbGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dbGridView_CellContentClick);
+            // 
+            // chart1
+            // 
+            chartArea11.Name = "ChartArea1";
+            chartArea12.Name = "ChartArea2";
+            this.chart1.ChartAreas.Add(chartArea11);
+            this.chart1.ChartAreas.Add(chartArea12);
+            legend6.Name = "Legend1";
+            this.chart1.Legends.Add(legend6);
+            this.chart1.Location = new System.Drawing.Point(341, 152);
+            this.chart1.Name = "chart1";
+            series11.ChartArea = "ChartArea1";
+            series11.Legend = "Legend1";
+            series11.Name = "Series1";
+            series12.ChartArea = "ChartArea2";
+            series12.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Bar;
+            series12.Legend = "Legend1";
+            series12.Name = "BarChart";
+            this.chart1.Series.Add(series11);
+            this.chart1.Series.Add(series12);
+            this.chart1.Size = new System.Drawing.Size(314, 246);
+            this.chart1.TabIndex = 10;
+            this.chart1.Text = "chart1";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.tbJobTitle);
+            this.panel1.Controls.Add(this.tbFirstName);
+            this.panel1.Controls.Add(this.tbLastName);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Location = new System.Drawing.Point(186, 11);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(295, 125);
+            this.panel1.TabIndex = 11;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(339, 454);
+            this.ClientSize = new System.Drawing.Size(667, 437);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.chart1);
             this.Controls.Add(this.dbGridView);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnUpdate);
@@ -236,13 +288,6 @@
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.btnPrevious);
             this.Controls.Add(this.btnNext);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.tbJobTitle);
-            this.Controls.Add(this.tbLastName);
-            this.Controls.Add(this.tbFirstName);
-            this.MaximumSize = new System.Drawing.Size(355, 500);
             this.MinimumSize = new System.Drawing.Size(355, 277);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -251,6 +296,9 @@
             this.statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dbGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dbBindSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -282,6 +330,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn jobTypeDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridView dbGridView;
         private System.Windows.Forms.BindingSource dbBindSource;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 

@@ -14,9 +14,10 @@ namespace SQLExample2
         System.Data.SqlClient.SqlConnection con;
         DataSet ds1;
         System.Data.SqlClient.SqlDataAdapter da;
-        DataTable table;
-        int MaxRows = 0;
+        int maxRows = 0;
         int inc = 0;
+        string index = "0";
+        DataTable dTable = null;
 
         public Form1()
         {
@@ -36,13 +37,8 @@ namespace SQLExample2
             string sql = "SELECT * From tblWorkers";
             da = new System.Data.SqlClient.SqlDataAdapter(sql, con);
 
-            table = new DataTable();
-
             da.Fill(ds1, "Workers");
-            NavigateRecords();
-
-            MaxRows = ds1.Tables["Workers"].Rows.Count;
-            
+            maxRows = ds1.Tables["Workers"].Rows.Count;
             UpdateStatusBar();
             con.Close();
 
@@ -50,33 +46,50 @@ namespace SQLExample2
             dbGridView.DataMember = "Workers";
             dbGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
             dbGridView.ReadOnly = true;
+            dbGridView.MultiSelect = false;
+            dbGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dbGridView.CurrentCell = dbGridView[1, 0];
+
+            dTable = ds1.Tables["Workers"];
+            DataColumn[] keys = new DataColumn[1];
+            DataColumn column = new DataColumn();
+            column.DataType = System.Type.GetType("System.Int32");
+            column.ColumnName = "tableID";
+            dTable.Columns.Add(column);
+            keys[0] = column;
+            dTable.PrimaryKey = keys;
+
+            ShowData();
+
+
+
         }
 
-        void NavigateRecords()
+        void ShowData()
         {
-            DataRow dRow = ds1.Tables["Workers"].Rows[inc];
+            //DataRow dRow = ds1.Tables["Workers"].Rows[inc];
+            DataRow dRow = dTable.Rows.Find(
 
             tbFirstName.Text = dRow.ItemArray.GetValue(1).ToString().TrimEnd(' ');
             tbLastName.Text = dRow.ItemArray.GetValue(2).ToString().TrimEnd(' ');
             tbJobTitle.Text = dRow.ItemArray.GetValue(3).ToString().TrimEnd(' ');
-
+            dbGridView.CurrentCell = dbGridView.SelectedRows[0].Cells[0];
         }
 
         void UpdateStatusBar()
         {
-            lblRecordNo.Text = "Record " + (inc + 1) + " of " + MaxRows;
+            lblRecordNo.Text = "Record " + (inc + 1) + " of " + maxRows;
             lblAction.Text = "";
             lblSpace.Text = "";
         }
 
         #region Button Functionality
-
         private void btnNext_Click(object sender, EventArgs e)
         {
-            if (inc < MaxRows - 1)
+            if (inc < maxRows - 1)
             {
                 inc++;
-                NavigateRecords();
+                ShowData();
                 UpdateStatusBar();
             }
             else
@@ -90,7 +103,7 @@ namespace SQLExample2
             if (inc > 0)
             {
                 inc--;
-                NavigateRecords();
+                ShowData();
                 UpdateStatusBar();
             }
             else
@@ -102,14 +115,14 @@ namespace SQLExample2
         private void btnFirst_Click(object sender, EventArgs e)
         {
             inc = 0;
-            NavigateRecords();
+            ShowData();
             UpdateStatusBar();
         }
 
         private void btnLast_Click(object sender, EventArgs e)
         {
-            inc = MaxRows - 1;
-            NavigateRecords();
+            inc = maxRows - 1;
+            ShowData();
             UpdateStatusBar();
         }
 
@@ -119,7 +132,7 @@ namespace SQLExample2
             tbLastName.Clear();
             tbJobTitle.Clear();
             tbFirstName.Focus();
-            lblRecordNo.Text = "Record " + (MaxRows + 1) + " of " + (MaxRows + 1);
+            lblRecordNo.Text = "Record " + (maxRows + 1) + " of " + (maxRows + 1);
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -128,17 +141,19 @@ namespace SQLExample2
             cb = new System.Data.SqlClient.SqlCommandBuilder(da);
 
             DataRow dRow = ds1.Tables["Workers"].NewRow();
-            dRow[0] = inc + 1;
             dRow[1] = tbFirstName.Text;
             dRow[2] = tbLastName.Text;
             dRow[3] = tbJobTitle.Text;
             ds1.Tables["Workers"].Rows.Add(dRow);
             da.Update(ds1, "Workers");
 
-            MaxRows++;
-            inc = MaxRows - 1;
+            maxRows++;
+            inc = maxRows - 1;
             UpdateStatusBar();
             lblAction.Text = "Saved to database";
+
+            ds1.Clear();
+            da.Fill(ds1, "Workers");
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
@@ -168,9 +183,9 @@ namespace SQLExample2
             if (dResult == DialogResult.Yes)
             {
                 ds1.Tables["Workers"].Rows[inc].Delete();
-                MaxRows--;
+                maxRows--;
                 inc = 0;
-                NavigateRecords();
+                ShowData();
                 UpdateStatusBar();
 
                 da.Update(ds1, "Workers");
@@ -183,6 +198,11 @@ namespace SQLExample2
             }
         }
         #endregion
+
+        private void dbGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
 
     }
 }
