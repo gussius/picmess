@@ -237,10 +237,6 @@
         private System.Windows.Forms.Button btnDelete;
         private System.Windows.Forms.ToolStripStatusLabel lblAction;
         private System.Windows.Forms.ToolStripStatusLabel lblSpace;
-        private System.Windows.Forms.DataGridViewTextBoxColumn workerIDDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn firstNameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn lastNameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn jobTypeDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridView dbGridView;
         private System.Windows.Forms.Panel panel1;
     }

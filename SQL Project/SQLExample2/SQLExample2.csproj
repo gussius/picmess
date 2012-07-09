@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -25,7 +26,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -70,14 +70,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WorkerDBDataSet.cs">
-      <DependentUpon>WorkerDBDataSet.xsd</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="WorkerDBDataSet.Designer.cs">
+    <Compile Include="WorkerDBDataSet1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>WorkerDBDataSet.xsd</DependentUpon>
+      <DependentUpon>WorkerDBDataSet1.xsd</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -102,16 +98,16 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="WorkerDBDataSet.xsc">
-      <DependentUpon>WorkerDBDataSet.xsd</DependentUpon>
+    <None Include="WorkerDBDataSet1.xsc">
+      <DependentUpon>WorkerDBDataSet1.xsd</DependentUpon>
     </None>
-    <None Include="WorkerDBDataSet.xsd">
+    <None Include="WorkerDBDataSet1.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>WorkerDBDataSet.Designer.cs</LastGenOutput>
+      <LastGenOutput>WorkerDBDataSet1.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </None>
-    <None Include="WorkerDBDataSet.xss">
-      <DependentUpon>WorkerDBDataSet.xsd</DependentUpon>
+    <None Include="WorkerDBDataSet1.xss">
+      <DependentUpon>WorkerDBDataSet1.xsd</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

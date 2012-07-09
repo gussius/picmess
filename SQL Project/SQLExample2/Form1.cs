@@ -15,11 +15,8 @@ namespace SQLExample2
         System.Data.SqlClient.SqlConnection con;
         System.Data.SqlClient.SqlDataAdapter da;
         DataSet ds1;
-        
 
         // Some helper fields.
-        int maxRows = 0;
-        int inc = 0;
         DataRow selectedRow;
 
         public Form1()
@@ -33,8 +30,8 @@ namespace SQLExample2
         {
             // Create connection to database.
             con = new System.Data.SqlClient.SqlConnection();
-            con.ConnectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=C:\\Users\\angmcl\\Documents\\picmess\\" +
-                "SQL Project\\WorkerDB.mdf;Integrated Security=True;Connect Timeout=30;User Instance=True";
+            con.ConnectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=C:\\picmess\\SQL Project\\WorkerDB.mdf;" +
+                "Integrated Security=True;Connect Timeout=30;User Instance=True";
 
             // Create a new dataset (Subset of SQL database information in memory).
             ds1 = new DataSet();
@@ -54,7 +51,7 @@ namespace SQLExample2
             // maxRows is initialised here to give us easy access to the number of rows in the "Workers" table in the
             // dataset. Not sure is this is the best way to account for number of rows or if I should just interrogate
             // the dataset.
-            maxRows = ds1.Tables["Workers"].Rows.Count;
+            //maxRows = ds1.Tables["Workers"].Rows.Count;
 
             // Update the form with the first instance of data that we wish to view. Default: first row etc.
             // Show server version started in status bar.
@@ -89,6 +86,7 @@ namespace SQLExample2
         private DataRow GetSelectedRow()
         {
             DataRowView selectedRowView = (DataRowView)dbGridView.SelectedRows[0].DataBoundItem;
+            selectedRow = selectedRowView.Row;
             return selectedRowView.Row;
         }
 
@@ -104,7 +102,7 @@ namespace SQLExample2
         // Updates the status bar and clears action description.
         void UpdateStatusBar()
         {
-            lblRecordNo.Text = "Record " + (inc + 1) + " of " + maxRows;
+            lblRecordNo.Text = "Record " + (ds1.Tables["Workers"].Rows.IndexOf(selectedRow) + 1) + " of " + ds1.Tables["Workers"].Rows.Count;
             lblAction.Text = "";
         }
 
@@ -117,6 +115,7 @@ namespace SQLExample2
             tbLastName.Clear();
             tbJobTitle.Clear();
             tbFirstName.Focus();
+            int maxRows = ds1.Tables["Workers"].Rows.Count;
             lblRecordNo.Text = "Record " + (maxRows + 1) + " of " + (maxRows + 1);
         }
 
@@ -133,16 +132,15 @@ namespace SQLExample2
             dRow[1] = tbFirstName.Text;
             dRow[2] = tbLastName.Text;
             dRow[3] = tbJobTitle.Text;
-            
+
+
             // Add row to dataset and update database though data adapter.
             ds1.Tables["Workers"].Rows.Add(dRow);
             da.Update(ds1, "Workers");
 
             // Increment helper fields to appropriate values, and update status bar.
-            maxRows++;
-            inc = maxRows - 1;
             UpdateStatusBar();
-            lblAction.Text = "Saved to database as Record " + inc;
+            lblAction.Text = "Saved to database as Record " + ds1.Tables["Workers"].Rows.IndexOf(dRow);
 
             // Refresh dataset to allow access to autonumber identity.
             ds1.Clear();
@@ -156,15 +154,14 @@ namespace SQLExample2
             cb = new System.Data.SqlClient.SqlCommandBuilder(da);
 
             // Creates a new data row based on the selected 
-            DataRow row = ds1.Tables["Workers"].Rows[inc];
+            DataRow row = selectedRow;
 
             row[1] = tbFirstName.Text;
             row[2] = tbLastName.Text;
             row[3] = tbJobTitle.Text;
 
             da.Update(ds1, "Workers");
-            lblAction.Text = "Record " + (inc + 1) + " Updated";
-
+            lblAction.Text = "Record " + ds1.Tables["Workers"].Rows.IndexOf(row) + " Updated";
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -173,7 +170,8 @@ namespace SQLExample2
             cb = new System.Data.SqlClient.SqlCommandBuilder(da);
 
             int row = ds1.Tables["Workers"].Rows.IndexOf(selectedRow);
-            DialogResult dResult = MessageBox.Show("Are you sure you want to Delete record " + (row + 1), "Delete", MessageBoxButtons.YesNo);
+            DialogResult dResult = MessageBox.Show("Are you sure you want to Delete record "
+                + (row + 1), "Delete", MessageBoxButtons.YesNo);
 
             if (dResult == DialogResult.Yes)
             {
@@ -182,6 +180,7 @@ namespace SQLExample2
 
                 dbGridView.CurrentCell = dbGridView[0, 0];
                 GetSelectedRow();
+
                 FillTextBoxes();
                 UpdateStatusBar();
 
@@ -197,7 +196,7 @@ namespace SQLExample2
 
         private void dbGridView_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            selectedRow = GetSelectedRow();
+            GetSelectedRow();
             UpdateStatusBar();
             FillTextBoxes();
         }

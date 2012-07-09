@@ -44,5 +44,16 @@ namespace SQLExample2.Properties {
                 return ((string)(this["WorkerDBConnectionString1"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=.\\SQLEXPRESS;AttachDbFilename=\"C:\\picmess\\SQL Project\\WorkerDB.mdf\";I" +
+            "ntegrated Security=True;User Instance=True")]
+        public string WorkerDBConnectionString2 {
+            get {
+                return ((string)(this["WorkerDBConnectionString2"]));
+            }
+        }
     }
 }
