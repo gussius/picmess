@@ -25,7 +25,6 @@ C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExamp
 C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.Properties.Resources.resources
 C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\GenerateResource.read.1.tlog
 C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\obj\x86\Debug\GenerateResource.write.1.tlog
-C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\SQLExample2.exe.config
 C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\WorkerDB.mdf
 C:\Users\angmcl\Documents\picmess\SQL Project\SQLExample2\bin\Debug\WorkerDB_log.ldf
 C:\picmess\SQL Project\SQLExample2\obj\x86\Debug\SQLExample2.exe

@@ -30,7 +30,7 @@ namespace SQLExample2
         {
             // Create connection to database.
             con = new System.Data.SqlClient.SqlConnection();
-            con.ConnectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=C:\\picmess\\SQL Project\\WorkerDB.mdf;" +
+            con.ConnectionString = "Data Source=.\\SQLEXPRESS;AttachDbFilename=C:\\Users\\angmcl\\Documents\\picmess\\SQL Project\\WorkerDB.mdf;" +
                 "Integrated Security=True;Connect Timeout=30;User Instance=True";
 
             // Create a new dataset (Subset of SQL database information in memory).
@@ -133,9 +133,9 @@ namespace SQLExample2
             dRow[2] = tbLastName.Text;
             dRow[3] = tbJobTitle.Text;
 
-
             // Add row to dataset and update database though data adapter.
             ds1.Tables["Workers"].Rows.Add(dRow);
+            
             da.Update(ds1, "Workers");
 
             // Increment helper fields to appropriate values, and update status bar.
