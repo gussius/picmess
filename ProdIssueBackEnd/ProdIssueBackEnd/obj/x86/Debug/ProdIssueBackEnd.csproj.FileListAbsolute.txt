@@ -1,1 +1,6 @@
 C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\bin\Debug\ProdIssueBackEnd.exe.config
+C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\bin\Debug\ProdIssueBackEnd.exe
+C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\bin\Debug\ProdIssueBackEnd.pdb
+C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\obj\x86\Debug\ProdIssueBackEnd.exe
+C:\Users\angmcl\Documents\picmess\ProdIssueBackEnd\ProdIssueBackEnd\obj\x86\Debug\ProdIssueBackEnd.pdb

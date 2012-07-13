@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ProdIssueBE.Properties {
+namespace ProdIssueBackEnd.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -31,6 +31,17 @@ namespace ProdIssueBE.Properties {
         public string ProdIssueDbConnectionString {
             get {
                 return ((string)(this["ProdIssueDbConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=.\\SQLEXPRESS;AttachDbFilename=C:\\Dropbox\\Databases\\ProdIssueDb.mdf;In" +
+            "tegrated Security=True;Connect Timeout=30;User Instance=True")]
+        public string ProdIssueDbConnectionString1 {
+            get {
+                return ((string)(this["ProdIssueDbConnectionString1"]));
             }
         }
     }
