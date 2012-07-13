@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="ProdIssueDb" Class="ProdIssueDbDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=.\SQLEXPRESS;AttachDbFilename=C:\Dropbox\Databases\ProdIssueDb.mdf;Integrated Security=True;Connect Timeout=30;User Instance=True" SettingsObjectName="ProdIssueBackEnd.Properties.Settings" SettingsPropertyName="ProdIssueDbConnectionString1" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Employees" Member="Employees">
+    <Type Name="Employee">
+      <Column Name="employee_Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="firstName" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="lastName" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Association Name="Employee_ProdIssue" Member="ProdIssues" ThisKey="employee_Id" OtherKey="employee_Id" Type="ProdIssue" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProdIssues" Member="ProdIssues">
+    <Type Name="ProdIssue">
+      <Column Name="prodIssue_Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="openDate" Type="System.DateTime" DbType="Date NOT NULL" CanBeNull="false" />
+      <Column Name="deptReported" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="employee_Id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="description" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="deptOrigin" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="issueType" Type="System.String" DbType="NChar(10) NOT NULL" CanBeNull="false" />
+      <Column Name="priorityClass" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="trend_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="qualityProcess" Type="System.String" DbType="NVarChar(4)" CanBeNull="true" />
+      <Column Name="qualityRefNo" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="quarantined" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="discussion" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="solution" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="reject" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="partList_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Employee_ProdIssue" Member="Employee" ThisKey="employee_Id" OtherKey="employee_Id" Type="Employee" IsForeignKey="true" />
+      <Association Name="Trend_ProdIssue" Member="Trend" ThisKey="trend_Id" OtherKey="trend_Id" Type="Trend" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Trends" Member="Trends">
+    <Type Name="Trend">
+      <Column Name="trend_Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Association Name="Trend_ProdIssue" Member="ProdIssues" ThisKey="trend_Id" OtherKey="trend_Id" Type="ProdIssue" />
+    </Type>
+  </Table>
+</Database>
