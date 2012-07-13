@@ -5,7 +5,7 @@
       <Column Name="employee_Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
       <Column Name="firstName" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
       <Column Name="lastName" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
-      <Association Name="Employee_ProdIssue" Member="ProdIssues" ThisKey="employee_Id" OtherKey="employee_Id" Type="ProdIssue" />
+      <Association Name="Employeeeees_ProdIssue" Member="ProdIssues" ThisKey="employee_Id" OtherKey="employee_Id" Type="ProdIssue" />
     </Type>
   </Table>
   <Table Name="dbo.ProdIssues" Member="ProdIssues">
@@ -26,14 +26,14 @@
       <Column Name="solution" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Column Name="reject" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
       <Column Name="partList_Id" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Association Name="Employee_ProdIssue" Member="Employee" ThisKey="employee_Id" OtherKey="employee_Id" Type="Employee" IsForeignKey="true" />
+      <Association Name="Employeeeees_ProdIssue" Member="Employee" ThisKey="employee_Id" OtherKey="employee_Id" Type="Employee" IsForeignKey="true" />
       <Association Name="Trend_ProdIssue" Member="Trend" ThisKey="trend_Id" OtherKey="trend_Id" Type="Trend" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Trends" Member="Trends">
     <Type Name="Trend">
       <Column Name="trend_Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="description" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="description" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
       <Association Name="Trend_ProdIssue" Member="ProdIssues" ThisKey="trend_Id" OtherKey="trend_Id" Type="ProdIssue" />
     </Type>
   </Table>

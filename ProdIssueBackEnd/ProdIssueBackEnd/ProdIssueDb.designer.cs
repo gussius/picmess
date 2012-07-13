@@ -188,7 +188,7 @@ namespace ProdIssueBackEnd
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Employee_ProdIssue", Storage="_ProdIssues", ThisKey="employee_Id", OtherKey="employee_Id")]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Employeeeees_ProdIssue", Storage="_ProdIssues", ThisKey="employee_Id", OtherKey="employee_Id")]
 		public EntitySet<ProdIssue> ProdIssues
 		{
 			get
@@ -649,7 +649,7 @@ namespace ProdIssueBackEnd
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Employee_ProdIssue", Storage="_Employee", ThisKey="employee_Id", OtherKey="employee_Id", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Employeeeees_ProdIssue", Storage="_Employee", ThisKey="employee_Id", OtherKey="employee_Id", IsForeignKey=true)]
 		public Employee Employee
 		{
 			get
@@ -786,7 +786,7 @@ namespace ProdIssueBackEnd
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_description", DbType="NVarChar(MAX)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_description", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
 		public string description
 		{
 			get
