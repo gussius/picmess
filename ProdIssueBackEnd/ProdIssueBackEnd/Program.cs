@@ -22,15 +22,21 @@ namespace ProdIssueBackEnd
             // Create a new employee instance.
             Employee newEmployee = new Employee()
             {
-                firstName = "Shem",
-                lastName = "Edwards"
+                firstName = "What",
+                lastName = "The"
             };
             // Add the new employee to the database; then check if it was successful.
             using (var db = new ProdIssueDbDataContext())
             {
+                Employee firstShem = db.Employees.First(d => d.firstName == "Shem");
+                Console.WriteLine("\nfirstShem.firstName = {0}\n", firstShem.firstName);
+                db.Employees.DeleteOnSubmit(firstShem);
+                db.SubmitChanges();
+                
+                
                 db.Employees.InsertOnSubmit(newEmployee);
                 db.SubmitChanges();
-                var checkEmployee = db.Employees.SingleOrDefault(check => check.firstName == newEmployee.firstName);
+                var checkEmployee = db.Employees.Single(check => check.employee_Id == newEmployee.employee_Id);
                 if (checkEmployee != null)
                     empId = checkEmployee.employee_Id;
             }
@@ -38,14 +44,14 @@ namespace ProdIssueBackEnd
             ProdIssue newIssue = new ProdIssue()
             {
                 openDate        = DateTime.Today,
-                deptReported    = "Assembly",
+                deptReported    = "1",
                 employee_Id     = empId,
-                description     = "This is a description",
-                deptOrigin      = "Welding",
-                issueType       = "Process",
-                priorityClass   = "Functional",
-                qualityProcess  = "NCR",
-                qualityRefNo    = 84,
+                description     = "2",
+                deptOrigin      = "3",
+                issueType       = "4",
+                priorityClass   = "5",
+                qualityProcess  = "6",
+                qualityRefNo    = 99,
                 quarantined     = false,
                 reject          = false
             };
@@ -66,6 +72,16 @@ namespace ProdIssueBackEnd
             using (var db = new ProdIssueDbDataContext())
             {
                 var issues = db.ProdIssues.Take(numOfLines);
+                var selection =
+                    from n in issues
+                    select n.Employee.firstName;
+
+                Console.WriteLine("variable: \"selection\" holds the following...");
+                foreach (var s in selection)
+                {
+                    Console.WriteLine("{0}", s);
+                }
+
                 foreach (var i in issues)
                 {
                     Console.WriteLine(  "Date Opened:{0}\nReported In:{1}\nEmployee ID:{2}\n" +
@@ -87,6 +103,8 @@ namespace ProdIssueBackEnd
                 }
 
                 
+
+                
             }
 
         }
@@ -98,7 +116,7 @@ namespace ProdIssueBackEnd
                 db.ProdIssues.InsertOnSubmit(newRow);
                 db.SubmitChanges();
 
-                var rowFromDb = db.ProdIssues.Select(a => a.openDate == newRow.openDate);
+                var rowFromDb = db.ProdIssues.Single(a => a.prodIssue_Id == newRow.prodIssue_Id);
                 if (rowFromDb == null)
                     return false;
                 
@@ -106,6 +124,7 @@ namespace ProdIssueBackEnd
             }
 
         }
+
 
     }
 }
